@@ -725,7 +725,7 @@ RSpec.describe OpenAI do
     end
   end
 
-  describe '#transcribe_audio' do
+  describe '#audio.transcribe' do
     let(:sample_audio) { OpenAISpec::SPEC_ROOT.join('data/sample.mp3') }
 
     let(:response_body) do
@@ -735,7 +735,7 @@ RSpec.describe OpenAI do
     end
 
     it 'can transcribe audio' do
-      transcription = client.transcribe_audio(
+      transcription = client.audio.transcribe(
         file: sample_audio,
         model: 'model-1234'
       )
@@ -758,7 +758,7 @@ RSpec.describe OpenAI do
     end
   end
 
-  describe '#translate_audio' do
+  describe '#audio.translate' do
     let(:sample_audio) { OpenAISpec::SPEC_ROOT.join('data/sample_french.mp3') }
 
     let(:response_body) do
@@ -768,7 +768,7 @@ RSpec.describe OpenAI do
     end
 
     it 'can translate audio' do
-      translation = client.translate_audio(
+      translation = client.audio.translate(
         file: sample_audio,
         model: 'model-id',
         prompt: 'Hello, my name is Wolfgang and I come from Germany. Where are you heading today?',

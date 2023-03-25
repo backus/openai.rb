@@ -14,6 +14,13 @@ class OpenAI
     include Concord.new(:client)
     include AbstractType
 
+    private
+
+    def form_file(path)
+      absolute_path = Pathname.new(path).expand_path.to_s
+      HTTP::FormData::File.new(absolute_path)
+    end
+
     class Completion < self
       def create(model:, **kwargs)
         Response::Completion.from_json(
@@ -60,10 +67,8 @@ class OpenAI
 
     class File < self
       def create(file:, purpose:)
-        absolute_path = Pathname.new(file).expand_path.to_s
-        form_file = HTTP::FormData::File.new(absolute_path)
         Response::File.from_json(
-          client.post_form_multipart('/v1/files', file: form_file, purpose: purpose)
+          client.post_form_multipart('/v1/files', file: form_file(file), purpose: purpose)
         )
       end
 
@@ -120,6 +125,30 @@ class OpenAI
       def create(prompt:, **kwargs)
         Response::ImageGeneration.from_json(
           client.post('/v1/images/generations', prompt: prompt, **kwargs)
+        )
+      end
+    end
+
+    class Audio < self
+      def transcribe(file:, model:, **kwargs)
+        Response::Transcription.from_json(
+          client.post_form_multipart(
+            '/v1/audio/transcriptions',
+            file: form_file(file),
+            model: model,
+            **kwargs
+          )
+        )
+      end
+
+      def translate(file:, model:, **kwargs)
+        Response::Transcription.from_json(
+          client.post_form_multipart(
+            '/v1/audio/translations',
+            file: form_file(file),
+            model: model,
+            **kwargs
+          )
         )
       end
     end
