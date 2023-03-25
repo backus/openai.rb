@@ -140,6 +140,15 @@ class OpenAI
         )
       end
 
+      def create_variation(image:, **kwargs)
+        Response::ImageVariation.from_json(
+          post_form_multipart('/v1/images/variations', {
+                                image: form_file(image),
+                                **kwargs
+                              })
+        )
+      end
+
       def edit(image:, prompt:, mask: nil, **kwargs)
         params = {
           image: form_file(image),

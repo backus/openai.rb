@@ -5,6 +5,8 @@ RSpec.describe OpenAI, '#images' do
 
   let(:resource) { client.images }
 
+  let(:sample_image) { OpenAISpec::SPEC_ROOT.join('data/sample_image.png') }
+
   context 'when creating an image' do
     let(:response_body) do
       {
@@ -34,7 +36,6 @@ RSpec.describe OpenAI, '#images' do
   end
 
   context 'when editing an image' do
-    let(:sample_image) { OpenAISpec::SPEC_ROOT.join('data/sample_image.png') }
     let(:sample_mask) { OpenAISpec::SPEC_ROOT.join('data/sample_image_mask.png') }
 
     let(:response_body) do
@@ -83,6 +84,54 @@ RSpec.describe OpenAI, '#images' do
 
       expect(image_edit.created).to eql(1_589_478_378)
       expect(image_edit.data.first.url).to eql('https://...')
+    end
+  end
+
+  context 'when creating image variations' do
+    let(:response_body) do
+      {
+        "created": 1_589_478_378,
+        "data": [
+          {
+            "url": 'https://...'
+          },
+          {
+            "url": 'https://...'
+          }
+        ]
+      }
+    end
+
+    it 'can create image variations' do
+      image_variations = resource.create_variation(
+        image: sample_image,
+        n: 2,
+        size: '512x512',
+        response_format: 'url',
+        user: 'user123'
+      )
+
+      expect(http)
+        .to have_received(:post)
+        .with(
+          'https://api.openai.com/v1/images/variations',
+          hash_including(
+            form: hash_including(
+              {
+                image: instance_of(HTTP::FormData::File),
+                n: 2,
+                size: '512x512',
+                response_format: 'url',
+                user: 'user123'
+              }
+            )
+          )
+        )
+
+      expect(image_variations.created).to eql(1_589_478_378)
+      expect(image_variations.data.size).to eql(2)
+      expect(image_variations.data.first.url).to eql('https://...')
+      expect(image_variations.data.last.url).to eql('https://...')
     end
   end
 end
