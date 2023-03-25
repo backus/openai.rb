@@ -78,6 +78,12 @@ class OpenAI
     )
   end
 
+  def get_file(file_id)
+    Response::File.from_json(
+      get("/v1/files/#{file_id}")
+    )
+  end
+
   def inspect
     "#<#{self.class}>"
   end

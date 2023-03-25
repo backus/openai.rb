@@ -489,4 +489,40 @@ RSpec.describe OpenAI do
       expect(file.deleted?).to be_truthy
     end
   end
+
+  describe '#get_file' do
+    let(:response_body) do
+      {
+        "id": 'file-XjGxS3KTG0uNmNOK362iJua3',
+        "object": 'file',
+        "bytes": 140,
+        "created_at": 1_613_779_657,
+        "filename": 'mydata.jsonl',
+        "purpose": 'fine-tune'
+      }
+    end
+
+    let(:response) do
+      instance_double(
+        HTTP::Response,
+        status: HTTP::Response::Status.new(200),
+        body: JSON.dump(response_body)
+      )
+    end
+
+    it 'can get a file' do
+      file = client.get_file('file-XjGxS3KTG0uNmNOK362iJua3')
+
+      expect(http)
+        .to have_received(:get)
+        .with('https://api.openai.com/v1/files/file-XjGxS3KTG0uNmNOK362iJua3')
+
+      expect(file.id).to eql('file-XjGxS3KTG0uNmNOK362iJua3')
+      expect(file.object).to eql('file')
+      expect(file.bytes).to eql(140)
+      expect(file.created_at).to eql(1_613_779_657)
+      expect(file.filename).to eql('mydata.jsonl')
+      expect(file.purpose).to eql('fine-tune')
+    end
+  end
 end
