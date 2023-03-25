@@ -60,6 +60,10 @@ class Codegen
     ERR
   end
 
+  def get?
+    verb == 'get'
+  end
+
   def sample_response
     action.fetch('x-oaiMeta').fetch('response')
   end
@@ -221,7 +225,7 @@ history = [
       user_message_template,
       verb: codegen.verb,
       route: codegen.route,
-      summary: codegen.request_body_summary,
+      summary: codegen.get? ? '(none)' : codegen.request_body_summary,
       response: codegen.sample_response
     )
   }

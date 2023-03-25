@@ -36,11 +36,26 @@ class OpenAI
     )
   end
 
+  def list_models
+    Response::ListModel.from_json(get('/v1/models'))
+  end
+
   def inspect
     "#<#{self.class}>"
   end
 
   private
+
+  def get(route)
+    url = HOST.join(route).to_str
+    response = http_client.get(url)
+
+    unless response.status.success?
+      raise ResponseError, "Unexpected response #{response.status}\nBody:\n#{response.body}"
+    end
+
+    response.body.to_s
+  end
 
   def post(route, **body)
     url = HOST.join(route).to_str
@@ -168,6 +183,17 @@ class OpenAI
       field :data, wrapper: EmbeddingData
       field :model
       field :usage, wrapper: Usage
+    end
+
+    class Model < JSONPayload
+      field :id
+      field :object
+      field :owned_by
+      field :permission
+    end
+
+    class ListModel < JSONPayload
+      field :data, wrapper: Model
     end
   end
 end
