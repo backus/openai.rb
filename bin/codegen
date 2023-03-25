@@ -110,6 +110,8 @@ user_message_template = <<~MSG
   Please create an API call, a response wrapper, and a test for this request.
   OpenAPI context in JSON:
 
+  ACTION: %<verb>s %<route>s
+
   REQUEST SUMMARY: %<summary>s
 
   SAMPLE RESPONSE: %<response>s
@@ -203,6 +205,8 @@ history = [
     role: 'user',
     content: format(
       user_message_template,
+      verb: create_completion_example.verb,
+      route: create_completion_example.route,
       summary: create_completion_example.request_body_summary,
       response: create_completion_example.sample_response
     )
@@ -215,6 +219,8 @@ history = [
     role: 'user',
     content: format(
       user_message_template,
+      verb: codegen.verb,
+      route: codegen.route,
       summary: codegen.request_body_summary,
       response: codegen.sample_response
     )

@@ -30,6 +30,12 @@ class OpenAI
     )
   end
 
+  def create_embedding(model:, input:, **kwargs)
+    Response::Embedding.from_json(
+      post('/v1/embeddings', model: model, input: input, **kwargs)
+    )
+  end
+
   def inspect
     "#<#{self.class}>"
   end
@@ -56,15 +62,16 @@ class OpenAI
 
   class Response
     class JSONPayload
-      include Concord.new(:data)
+      include Concord.new(:internal_data)
 
       def self.from_json(raw_json)
         new(JSON.parse(raw_json, symbolize_names: true))
       end
 
       def self.field(name, path: [name], wrapper: nil)
+        given_wrapper = wrapper
         define_method(name) do
-          field(path, wrapper: wrapper)
+          field(path, wrapper: given_wrapper)
         end
       end
 
@@ -75,7 +82,7 @@ class OpenAI
       end
 
       def original_payload
-        data
+        internal_data
       end
 
       private
@@ -87,7 +94,7 @@ class OpenAI
       end
 
       def field(key_path, wrapper: nil)
-        value = key_path.reduce(data, :fetch)
+        value = key_path.reduce(internal_data, :fetch)
         return value unless wrapper
 
         if value.is_a?(Array)
@@ -142,6 +149,24 @@ class OpenAI
       field :object
       field :created
       field :choices, wrapper: Choice
+      field :usage, wrapper: Usage
+    end
+
+    class Embedding < JSONPayload
+      class EmbeddingData < JSONPayload
+        field :object
+        field :embedding
+        field :index
+      end
+
+      class Usage < JSONPayload
+        field :prompt_tokens
+        field :total_tokens
+      end
+
+      field :object
+      field :data, wrapper: EmbeddingData
+      field :model
       field :usage, wrapper: Usage
     end
   end
