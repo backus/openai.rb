@@ -9,6 +9,10 @@ module OpenAISpec
   SPEC_ROOT = ROOT.join('spec')
 end
 
+OpenAISpec::SPEC_ROOT.glob('shared/*.rb').shuffle.each do |shared_spec|
+  require(shared_spec)
+end
+
 RSpec.configure do |config|
   # Enable focused tests and run all tests if nothing is focused
   config.filter_run_when_matching(:focus)
