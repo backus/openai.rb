@@ -724,4 +724,37 @@ RSpec.describe OpenAI do
       expect(fine_tune.status).to eql('cancelled')
     end
   end
+
+  describe '#transcribe_audio' do
+    let(:sample_audio) { OpenAISpec::SPEC_ROOT.join('data/sample.mp3') }
+
+    let(:response_body) do
+      {
+        "text": "Imagine the wildest idea that you've ever had, and you're curious about how it might scale to something that's a 100, a 1,000 times bigger. This is a place where you can get to do that."
+      }
+    end
+
+    it 'can transcribe audio' do
+      transcription = client.transcribe_audio(
+        file: sample_audio,
+        model: 'model-1234'
+      )
+
+      expect(http)
+        .to have_received(:post)
+        .with(
+          'https://api.openai.com/v1/audio/transcriptions',
+          hash_including(
+            form: hash_including(
+              {
+                file: instance_of(HTTP::FormData::File),
+                model: 'model-1234'
+              }
+            )
+          )
+        )
+
+      expect(transcription.text).to eql("Imagine the wildest idea that you've ever had, and you're curious about how it might scale to something that's a 100, a 1,000 times bigger. This is a place where you can get to do that.")
+    end
+  end
 end
