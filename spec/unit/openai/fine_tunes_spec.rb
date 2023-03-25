@@ -262,4 +262,61 @@ RSpec.describe OpenAI, '#fine_tunes' do
       expect(fine_tune.status).to eql('cancelled')
     end
   end
+
+  context 'when listing fine-tune events' do
+    let(:response_body) do
+      {
+        "object": 'list',
+        "data": [
+          {
+            "object": 'fine-tune-event',
+            "created_at": 1_614_807_352,
+            "level": 'info',
+            "message": 'Job enqueued. Waiting for jobs ahead to complete. Queue number: 0.'
+          },
+          {
+            "object": 'fine-tune-event',
+            "created_at": 1_614_807_356,
+            "level": 'info',
+            "message": 'Job started.'
+          },
+          {
+            "object": 'fine-tune-event',
+            "created_at": 1_614_807_861,
+            "level": 'info',
+            "message": 'Uploaded snapshot: curie:ft-acmeco-2021-03-03-21-44-20.'
+          },
+          {
+            "object": 'fine-tune-event',
+            "created_at": 1_614_807_864,
+            "level": 'info',
+            "message": 'Uploaded result files: file-QQm6ZpqdNwAaVC3aSz5sWwLT.'
+          },
+          {
+            "object": 'fine-tune-event',
+            "created_at": 1_614_807_864,
+            "level": 'info',
+            "message": 'Job succeeded.'
+          }
+        ]
+      }
+    end
+
+    it 'can list fine-tune events' do
+      events = resource.list_events('fine-tune-id')
+
+      expect(http)
+        .to have_received(:get)
+        .with('https://api.openai.com/v1/fine-tunes/fine-tune-id/events')
+
+      expect(events.object).to eql('list')
+      expect(events.data.size).to eql(5)
+
+      event = events.data.first
+      expect(event.object).to eql('fine-tune-event')
+      expect(event.created_at).to eql(1_614_807_352)
+      expect(event.level).to eql('info')
+      expect(event.message).to eql('Job enqueued. Waiting for jobs ahead to complete. Queue number: 0.')
+    end
+  end
 end

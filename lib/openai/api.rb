@@ -131,6 +131,12 @@ class OpenAI
           post("/v1/fine-tunes/#{fine_tune_id}/cancel")
         )
       end
+
+      def list_events(fine_tune_id)
+        Response::FineTuneEventList.from_json(
+          get("/v1/fine-tunes/#{fine_tune_id}/events")
+        )
+      end
     end
 
     class Image < self

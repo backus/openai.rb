@@ -323,6 +323,11 @@ class OpenAI
       field :data, wrapper: FineTune
     end
 
+    class FineTuneEventList < JSONPayload
+      field :data, wrapper: FineTune::Event
+      field :object
+    end
+
     class Transcription < JSONPayload
       field :text
     end
