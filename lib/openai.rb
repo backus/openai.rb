@@ -84,6 +84,10 @@ class OpenAI
     )
   end
 
+  def get_file_content(file_id)
+    get("/v1/files/#{file_id}/content")
+  end
+
   def inspect
     "#<#{self.class}>"
   end

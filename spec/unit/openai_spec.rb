@@ -525,4 +525,24 @@ RSpec.describe OpenAI do
       expect(file.purpose).to eql('fine-tune')
     end
   end
+
+  describe '#get_file_content' do
+    let(:response) do
+      instance_double(
+        HTTP::Response,
+        status: HTTP::Response::Status.new(200),
+        body: '(raw)'
+      )
+    end
+
+    it 'can get a file contents' do
+      response = client.get_file_content('file-XjGxS3KTG0uNmNOK362iJua3')
+
+      expect(http)
+        .to have_received(:get)
+        .with('https://api.openai.com/v1/files/file-XjGxS3KTG0uNmNOK362iJua3/content')
+
+      expect(response).to eql('(raw)')
+    end
+  end
 end
