@@ -139,6 +139,20 @@ class OpenAI
           post('/v1/images/generations', prompt: prompt, **kwargs)
         )
       end
+
+      def edit(image:, prompt:, mask: nil, **kwargs)
+        params = {
+          image: form_file(image),
+          prompt: prompt,
+          **kwargs
+        }
+
+        params[:mask] = form_file(mask) if mask
+
+        Response::ImageEdit.from_json(
+          post_form_multipart('/v1/images/edits', **params)
+        )
+      end
     end
 
     class Audio < self

@@ -246,6 +246,15 @@ class OpenAI
       field :data, wrapper: Image
     end
 
+    class ImageEdit < JSONPayload
+      class ImageEditData < JSONPayload
+        field :url
+      end
+
+      field :created
+      field :data, wrapper: ImageEditData
+    end
+
     class File < JSONPayload
       field :id
       field :object
