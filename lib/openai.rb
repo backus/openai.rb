@@ -26,7 +26,7 @@ class OpenAI
 
   def create_chat_completion(model:, messages:, **kwargs)
     Response::ChatCompletion.from_json(
-      post('/v1/chat-completions', model: model, messages: messages, **kwargs)
+      post('/v1/chat/completions', model: model, messages: messages, **kwargs)
     )
   end
 

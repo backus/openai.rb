@@ -52,6 +52,10 @@ RSpec.describe OpenAI do
     it 'can create a completion' do
       completion = client.create_completion(model: 'text-davinci-002', prompt: 'Hello, world!')
 
+      expect(http)
+        .to have_received(:post)
+        .with('https://api.openai.com/v1/completions', hash_including(:json))
+
       expect(completion.id).to eql('cmpl-uqkvlQyYK7bGYrRHQ0eXlWi7')
       expect(completion.model).to eql('text-davinci-003')
       expect(completion.choices.first.text).to eql("\n\nThis is indeed a test")
