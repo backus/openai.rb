@@ -44,4 +44,73 @@ RSpec.describe OpenAI::API, '#chat_completions' do
     expect(completion.usage.completion_tokens).to eql(12)
     expect(completion.usage.total_tokens).to eql(21)
   end
+
+  it 'raises when a block is given for a non-streaming request' do
+    expect { resource.create(model: 'text-davinci-002', messages: []) { print 'noop' } }
+      .to raise_error('Non-streaming responses do not support blocks')
+  end
+
+  context 'when streaming is enabled' do
+    let(:response_chunks) do
+      [
+        chunk(role: 'assistant'),
+        chunk(content: 'He'),
+        chunk(content: 'llo,'),
+        chunk(content: ' world'),
+        chunk({ content: '!' }, finish_reason: 'stop')
+      ]
+    end
+
+    let(:response) do
+      instance_double(
+        HTTP::Response,
+        status: HTTP::Response::Status.new(response_status_code),
+        body: response_body
+      )
+    end
+
+    let(:response_body) do
+      instance_double(HTTP::Response::Body).tap do |double|
+        allow(double).to receive(:each)
+          .and_yield(response_chunks.first)
+          .and_yield(response_chunks[1])
+          .and_yield(response_chunks[2])
+          .and_yield(response_chunks[3])
+          .and_yield(response_chunks[4])
+          .and_yield('data: [DONE]')
+      end
+    end
+
+    before do
+      allow(http).to receive(:persistent).and_yield(http)
+    end
+
+    def chunk(delta, finish_reason: nil)
+      data = {
+        id: 'chatcmpl-6y5rBH2fvMeGqAAH81Wkp8QdqESEx',
+        object: 'chat.completion.chunk',
+        created: 1_679_780_213,
+        model: 'gpt-3.5-turbo-0301',
+        choices: [delta: delta, index: 0, finish_reason: finish_reason]
+      }
+
+      "data: #{JSON.dump(data)}"
+    end
+
+    it 'yields chunks as they are served' do
+      chunks = []
+      resource.create(model: 'text-davinci-002', messages: [], stream: true) do |chunk|
+        chunks << chunk
+      end
+
+      expect(chunks).to all(be_an_instance_of(OpenAI::API::Response::ChatCompletionChunk))
+      texts = chunks.map { |chunk| chunk.choices.first.delta.content }
+      expect(texts.join('')).to eql('Hello, world!')
+    end
+
+    it 'raises when a block is not given' do
+      expect { resource.create(model: 'text-davinci-002', messages: [], stream: true) }
+        .to raise_error('Streaming responses require a block')
+    end
+  end
 end
