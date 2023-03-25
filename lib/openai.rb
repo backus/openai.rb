@@ -125,6 +125,19 @@ class OpenAI
     )
   end
 
+  def translate_audio(file:, model:, **kwargs)
+    absolute_path = Pathname.new(file).expand_path.to_s
+    form_file = HTTP::FormData::File.new(absolute_path)
+    Response::Transcription.from_json(
+      post_form_multipart(
+        '/v1/audio/translations',
+        file: form_file,
+        model: model,
+        **kwargs
+      )
+    )
+  end
+
   def inspect
     "#<#{self.class}>"
   end
