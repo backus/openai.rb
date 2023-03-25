@@ -10,6 +10,14 @@ RSpec.describe OpenAI do
     allow(http).to receive(:delete).and_return(response)
   end
 
+  let(:response) do
+    instance_double(
+      HTTP::Response,
+      status: HTTP::Response::Status.new(200),
+      body: JSON.dump(response_body)
+    )
+  end
+
   describe '#create_completion' do
     let(:response_body) do
       {
@@ -31,14 +39,6 @@ RSpec.describe OpenAI do
           "total_tokens": 12
         }
       }
-    end
-
-    let(:response) do
-      instance_double(
-        HTTP::Response,
-        status: HTTP::Response::Status.new(200),
-        body: JSON.dump(response_body)
-      )
     end
 
     it 'authenticates requests' do
@@ -94,14 +94,6 @@ RSpec.describe OpenAI do
       }
     end
 
-    let(:response) do
-      instance_double(
-        HTTP::Response,
-        status: HTTP::Response::Status.new(200),
-        body: JSON.dump(response_body)
-      )
-    end
-
     it 'can create a chat completion' do
       messages = [
         { "text": 'Hello there!', "user": 'customer' },
@@ -142,14 +134,6 @@ RSpec.describe OpenAI do
           "total_tokens": 8
         }
       }
-    end
-
-    let(:response) do
-      instance_double(
-        HTTP::Response,
-        status: HTTP::Response::Status.new(200),
-        body: JSON.dump(response_body)
-      )
     end
 
     it 'can create an embedding' do
@@ -197,14 +181,6 @@ RSpec.describe OpenAI do
       }
     end
 
-    let(:response) do
-      instance_double(
-        HTTP::Response,
-        status: HTTP::Response::Status.new(200),
-        body: JSON.dump(response_body)
-      )
-    end
-
     it 'can list all models' do
       models = client.list_models
 
@@ -248,14 +224,6 @@ RSpec.describe OpenAI do
       }
     end
 
-    let(:response) do
-      instance_double(
-        HTTP::Response,
-        status: HTTP::Response::Status.new(200),
-        body: JSON.dump(response_body)
-      )
-    end
-
     it 'can retrieve a model' do
       model = client.get_model('text-davinci-002')
 
@@ -296,14 +264,6 @@ RSpec.describe OpenAI do
       }
     end
 
-    let(:response) do
-      instance_double(
-        HTTP::Response,
-        status: HTTP::Response::Status.new(200),
-        body: JSON.dump(response_body)
-      )
-    end
-
     it 'can create an edit' do
       edit = client.create_edit(model: 'text-davinci-002',
                                 instruction: 'Change "world" to "solar system" in the following text: "Hello, world!"')
@@ -330,14 +290,6 @@ RSpec.describe OpenAI do
           { url: 'https://example.com/image2.png' }
         ]
       }
-    end
-
-    let(:response) do
-      instance_double(
-        HTTP::Response,
-        status: HTTP::Response::Status.new(200),
-        body: JSON.dump(response_body)
-      )
     end
 
     it 'can create an image generation' do
@@ -369,14 +321,6 @@ RSpec.describe OpenAI do
         "filename": 'sample.jsonl',
         "purpose": 'fine-tune'
       }
-    end
-
-    let(:response) do
-      instance_double(
-        HTTP::Response,
-        status: HTTP::Response::Status.new(200),
-        body: JSON.dump(response_body)
-      )
     end
 
     it 'can create a file' do
@@ -434,14 +378,6 @@ RSpec.describe OpenAI do
       }
     end
 
-    let(:response) do
-      instance_double(
-        HTTP::Response,
-        status: HTTP::Response::Status.new(200),
-        body: JSON.dump(response_body)
-      )
-    end
-
     it 'can get a list of files' do
       files = client.list_files
 
@@ -469,14 +405,6 @@ RSpec.describe OpenAI do
       }
     end
 
-    let(:response) do
-      instance_double(
-        HTTP::Response,
-        status: HTTP::Response::Status.new(200),
-        body: JSON.dump(response_body)
-      )
-    end
-
     it 'can delete a file' do
       file = client.delete_file('file-XjGxS3KTG0uNmNOK362iJua3')
 
@@ -500,14 +428,6 @@ RSpec.describe OpenAI do
         "filename": 'mydata.jsonl',
         "purpose": 'fine-tune'
       }
-    end
-
-    let(:response) do
-      instance_double(
-        HTTP::Response,
-        status: HTTP::Response::Status.new(200),
-        body: JSON.dump(response_body)
-      )
     end
 
     it 'can get a file' do
@@ -569,14 +489,6 @@ RSpec.describe OpenAI do
           {}
         ]
       }
-    end
-
-    let(:response) do
-      instance_double(
-        HTTP::Response,
-        status: HTTP::Response::Status.new(200),
-        body: JSON.dump(response_body)
-      )
     end
 
     it 'can get a list of fine-tunes' do
@@ -647,14 +559,6 @@ RSpec.describe OpenAI do
         ],
         "updated_at": 1_614_807_352
       }
-    end
-
-    let(:response) do
-      instance_double(
-        HTTP::Response,
-        status: HTTP::Response::Status.new(200),
-        body: JSON.dump(response_body)
-      )
     end
 
     it 'can create a fine-tune' do
@@ -763,14 +667,6 @@ RSpec.describe OpenAI do
       }
     end
 
-    let(:response) do
-      instance_double(
-        HTTP::Response,
-        status: HTTP::Response::Status.new(200),
-        body: JSON.dump(response_body)
-      )
-    end
-
     it 'can get a fine-tune' do
       fine_tune = client.get_fine_tune('ft-AF1WoRqd3aJAHsqc9NY7iL8F')
 
@@ -815,14 +711,6 @@ RSpec.describe OpenAI do
         "id": 'ft-xhrpBbvVUzYGo8oUO1FY4nI7',
         "status": 'cancelled'
       }
-    end
-
-    let(:response) do
-      instance_double(
-        HTTP::Response,
-        status: HTTP::Response::Status.new(200),
-        body: JSON.dump(response_body)
-      )
     end
 
     it 'can cancel a fine-tune' do
