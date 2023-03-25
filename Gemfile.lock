@@ -95,6 +95,7 @@ GEM
       rubocop (~> 1.33)
       rubocop-capybara (~> 2.17)
     ruby-progressbar (1.13.0)
+    slop (4.10.1)
     thread_safe (0.3.6)
     unf (0.1.4)
       unf_ext
@@ -112,6 +113,7 @@ DEPENDENCIES
   rspec (~> 3.12)
   rubocop
   rubocop-rspec
+  slop (~> 4.10)
 
 RUBY VERSION
    ruby 2.6.9p207

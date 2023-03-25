@@ -19,3 +19,5 @@ gem 'pry', '~> 0.13.1'
 gem 'pry-byebug', '~> 3.9'
 
 gem "dotenv", "~> 2.8"
+
+gem "slop", "~> 4.10"

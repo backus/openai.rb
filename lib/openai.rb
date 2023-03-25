@@ -10,6 +10,8 @@ require 'openai/version'
 class OpenAI
   include Concord.new(:api_key, :http)
 
+  ResponseError = Class.new(StandardError)
+
   HOST = Addressable::URI.parse('https://api.openai.com/v1')
 
   def initialize(api_key, http: HTTP)
@@ -24,7 +26,7 @@ class OpenAI
 
   def create_chat_completion(model:, messages:, **kwargs)
     Response::ChatCompletion.from_json(
-      post('/v1/chat_completions', model: model, messages: messages, **kwargs)
+      post('/v1/chat/completions', model: model, messages: messages, **kwargs)
     )
   end
 
