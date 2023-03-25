@@ -100,6 +100,18 @@ class OpenAI
     )
   end
 
+  def get_fine_tune(fine_tune_id)
+    Response::FineTune.from_json(
+      get("/v1/fine-tunes/#{fine_tune_id}")
+    )
+  end
+
+  def cancel_fine_tune(fine_tune_id)
+    Response::FineTune.from_json(
+      post("/v1/fine-tunes/#{fine_tune_id}/cancel")
+    )
+  end
+
   def inspect
     "#<#{self.class}>"
   end
@@ -337,9 +349,9 @@ class OpenAI
       field :fine_tuned_model
       field :hyperparams, wrapper: Hyperparams
       field :organization_id
-      field :result_files
+      field :result_files, wrapper: File
       field :status
-      field :validation_files
+      field :validation_files, wrapper: File
       field :training_files, wrapper: File
       field :updated_at
     end
