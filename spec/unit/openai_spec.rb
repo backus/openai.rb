@@ -406,4 +406,55 @@ RSpec.describe OpenAI do
       expect(file.purpose).to eql('fine-tune')
     end
   end
+
+  describe '#list_files' do
+    let(:response_body) do
+      {
+        "data": [
+          {
+            "id": 'file-ccdDZrC3iZVNiQVeEA6Z66wf',
+            "object": 'file',
+            "bytes": 175,
+            "created_at": 1_613_677_385,
+            "filename": 'train.jsonl',
+            "purpose": 'search'
+          },
+          {
+            "id": 'file-XjGxS3KTG0uNmNOK362iJua3',
+            "object": 'file',
+            "bytes": 140,
+            "created_at": 1_613_779_121,
+            "filename": 'puppy.jsonl',
+            "purpose": 'search'
+          }
+        ],
+        "object": 'list'
+      }
+    end
+
+    let(:response) do
+      instance_double(
+        HTTP::Response,
+        status: HTTP::Response::Status.new(200),
+        body: JSON.dump(response_body)
+      )
+    end
+
+    it 'can get a list of files' do
+      files = client.list_files
+
+      expect(http)
+        .to have_received(:get)
+        .with('https://api.openai.com/v1/files')
+
+      expect(files.data.size).to eql(2)
+      expect(files.data.first.id).to eql('file-ccdDZrC3iZVNiQVeEA6Z66wf')
+      expect(files.data.first.object).to eql('file')
+      expect(files.data.first.bytes).to eql(175)
+      expect(files.data.first.created_at).to eql(1_613_677_385)
+      expect(files.data.first.filename).to eql('train.jsonl')
+      expect(files.data.first.purpose).to eql('search')
+      expect(files.object).to eql('list')
+    end
+  end
 end

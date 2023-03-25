@@ -66,6 +66,10 @@ class Codegen
     verb == 'get'
   end
 
+  def no_request_body?
+    !action.key?('requestBody')
+  end
+
   def sample_response
     action.fetch('x-oaiMeta').fetch('response')
   end
@@ -246,7 +250,7 @@ history = [
       mime: codegen.mime,
       verb: codegen.verb,
       route: codegen.route,
-      summary: codegen.get? ? '(none)' : codegen.request_body_summary,
+      summary: codegen.no_request_body? ? '(none)' : codegen.request_body_summary,
       response: codegen.sample_response
     )
   }

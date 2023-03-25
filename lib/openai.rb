@@ -66,6 +66,12 @@ class OpenAI
     )
   end
 
+  def list_files
+    Response::FileList.from_json(
+      get('/v1/files')
+    )
+  end
+
   def inspect
     "#<#{self.class}>"
   end
@@ -259,6 +265,11 @@ class OpenAI
       field :created_at
       field :filename
       field :purpose
+    end
+
+    class FileList < JSONPayload
+      field :data, wrapper: File
+      field :object
     end
   end
 end
