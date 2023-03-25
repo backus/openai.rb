@@ -3,7 +3,7 @@
 RSpec.describe OpenAI::API, '#models' do
   include_context 'an API Resource'
 
-  let(:resource) { client.models }
+  let(:resource) { api.models }
 
   context 'when listing models' do
     let(:response_body) do

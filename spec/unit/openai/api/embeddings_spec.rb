@@ -3,7 +3,7 @@
 RSpec.describe OpenAI::API, '#embeddings' do
   include_context 'an API Resource'
 
-  let(:resource) { client.embeddings }
+  let(:resource) { api.embeddings }
   let(:response_body) do
     {
       "object": 'list',

@@ -3,7 +3,7 @@
 RSpec.describe OpenAI::API, '#edits' do
   include_context 'an API Resource'
 
-  let(:resource) { client.edits }
+  let(:resource) { api.edits }
   let(:response_body) do
     {
       "object": 'edit',

@@ -175,7 +175,7 @@ assistant_response_json_example = <<~RUBY
   RSpec.describe OpenAI::API, '#completions' do
     include_context 'an API Resource'
 
-    let(:resource) { client.completions }
+    let(:resource) { api.completions }
 
     let(:response_body) do
       {
@@ -249,7 +249,7 @@ assistant_response_form_example = <<~RUBY
   RSpec.describe OpenAI::API, '#files' do
     include_context 'an API Resource'
 
-    let(:resource) { client.files }
+    let(:resource) { api.files }
     let(:sample_file) { OpenAISpec::SPEC_ROOT.join('data/sample.jsonl') }
 
     context 'when creating a file' do

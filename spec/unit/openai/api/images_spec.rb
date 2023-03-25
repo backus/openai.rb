@@ -3,7 +3,7 @@
 RSpec.describe OpenAI::API, '#images' do
   include_context 'an API Resource'
 
-  let(:resource) { client.images }
+  let(:resource) { api.images }
 
   let(:sample_image) { OpenAISpec::SPEC_ROOT.join('data/sample_image.png') }
 

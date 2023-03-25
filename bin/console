@@ -10,7 +10,7 @@ require 'pry-byebug'
 Dotenv.load
 
 def start_repl
-  api = OpenAI.new(ENV.fetch('OPENAI_API_KEY'))
+  api = OpenAI.create(ENV.fetch('OPENAI_API_KEY'))
   binding.pry
 end
 

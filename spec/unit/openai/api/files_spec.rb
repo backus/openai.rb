@@ -3,7 +3,7 @@
 RSpec.describe OpenAI::API, '#files' do
   include_context 'an API Resource'
 
-  let(:resource) { client.files }
+  let(:resource) { api.files }
   let(:sample_file) { OpenAISpec::SPEC_ROOT.join('data/sample.jsonl') }
 
   context 'when creating a file' do

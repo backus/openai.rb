@@ -3,7 +3,7 @@
 RSpec.describe OpenAI::API, '#audio' do
   include_context 'an API Resource'
 
-  let(:resource) { client.audio }
+  let(:resource) { api.audio }
   let(:sample_audio) { OpenAISpec::SPEC_ROOT.join('data/sample.mp3') }
 
   context 'when transcribing audio' do

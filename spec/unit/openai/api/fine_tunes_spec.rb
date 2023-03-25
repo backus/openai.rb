@@ -3,7 +3,7 @@
 RSpec.describe OpenAI::API, '#fine_tunes' do
   include_context 'an API Resource'
 
-  let(:resource) { client.fine_tunes }
+  let(:resource) { api.fine_tunes }
   let(:response_body) do
     {
       "object": 'list',

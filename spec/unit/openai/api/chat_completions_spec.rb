@@ -3,7 +3,7 @@
 RSpec.describe OpenAI::API, '#chat_completions' do
   include_context 'an API Resource'
 
-  let(:resource) { client.chat_completions }
+  let(:resource) { api.chat_completions }
   let(:response_body) do
     {
       "id": 'chatcmpl-123',

@@ -3,7 +3,7 @@
 RSpec.describe OpenAI do
   include_context 'an API Resource'
 
-  let(:resource) { client.completions }
+  let(:resource) { api.completions }
 
   let(:response_body) do
     {

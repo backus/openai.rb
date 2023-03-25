@@ -16,9 +16,11 @@ require 'openai/version'
 class OpenAI
   include Concord.new(:api_client)
 
-  def initialize(...)
-    super(API::Client.new(...))
+  def self.create(api_key)
+    new(API::Client.new(api_key))
   end
+
+  private_class_method :new
 
   def api
     API.new(api_client)
