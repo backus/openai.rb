@@ -69,6 +69,14 @@ class OpenAI
       end
     end
 
+    class Moderation < self
+      def create(input:, model:)
+        Response::Moderation.from_json(
+          post('/v1/moderations', input: input, model: model)
+        )
+      end
+    end
+
     class Edit < self
       def create(model:, instruction:, **kwargs)
         Response::Edit.from_json(

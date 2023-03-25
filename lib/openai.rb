@@ -56,6 +56,10 @@ class OpenAI
     API::Audio.new(self)
   end
 
+  def moderations
+    API::Moderation.new(self)
+  end
+
   def inspect
     "#<#{self.class}>"
   end
@@ -213,6 +217,38 @@ class OpenAI
       field :object
       field :owned_by
       field :permission
+    end
+
+    class Moderation < JSONPayload
+      class Category < JSONPayload
+        field :hate
+        field :hate_threatening, path: %i[hate/threatening]
+        field :self_harm, path: %i[self-harm]
+        field :sexual
+        field :sexual_minors, path: %i[sexual/minors]
+        field :violence
+        field :violence_graphic, path: %i[violence/graphic]
+      end
+
+      class CategoryScore < JSONPayload
+        field :hate
+        field :hate_threatening, path: %i[hate/threatening]
+        field :self_harm, path: %i[self-harm]
+        field :sexual
+        field :sexual_minors, path: %i[sexual/minors]
+        field :violence
+        field :violence_graphic, path: %i[violence/graphic]
+      end
+
+      class Result < JSONPayload
+        field :categories, wrapper: Category
+        field :category_scores, wrapper: CategoryScore
+        field :flagged
+      end
+
+      field :id
+      field :model
+      field :results, wrapper: Result
     end
 
     class ListModel < JSONPayload
