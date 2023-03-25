@@ -88,6 +88,12 @@ class OpenAI
     get("/v1/files/#{file_id}/content")
   end
 
+  def list_fine_tunes
+    Response::FineTuneList.from_json(
+      get('/v1/fine-tunes')
+    )
+  end
+
   def inspect
     "#<#{self.class}>"
   end
@@ -291,6 +297,26 @@ class OpenAI
     class FileList < JSONPayload
       field :data, wrapper: File
       field :object
+    end
+
+    class FineTune < JSONPayload
+      field :id
+      field :object
+      field :model
+      field :created_at
+      field :fine_tuned_model
+      field :hyperparams
+      field :organization_id
+      field :result_files
+      field :status
+      field :validation_files
+      field :training_files
+      field :updated_at
+    end
+
+    class FineTuneList < JSONPayload
+      field :object
+      field :data, wrapper: FineTune
     end
   end
 end

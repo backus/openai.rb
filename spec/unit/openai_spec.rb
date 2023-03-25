@@ -545,4 +545,61 @@ RSpec.describe OpenAI do
       expect(response).to eql('(raw)')
     end
   end
+
+  describe '#list_fine_tunes' do
+    let(:response_body) do
+      {
+        "object": 'list',
+        "data": [
+          {
+            "id": 'ft-AF1WoRqd3aJAHsqc9NY7iL8F',
+            "object": 'fine-tune',
+            "model": 'curie',
+            "created_at": 1_614_807_352,
+            "fine_tuned_model": nil,
+            "hyperparams": {},
+            "organization_id": 'org-...',
+            "result_files": [],
+            "status": 'pending',
+            "validation_files": [],
+            "training_files": [{}],
+            "updated_at": 1_614_807_352
+          },
+          {},
+          {}
+        ]
+      }
+    end
+
+    let(:response) do
+      instance_double(
+        HTTP::Response,
+        status: HTTP::Response::Status.new(200),
+        body: JSON.dump(response_body)
+      )
+    end
+
+    it 'can get a list of fine-tunes' do
+      fine_tunes = client.list_fine_tunes
+
+      expect(http)
+        .to have_received(:get)
+        .with('https://api.openai.com/v1/fine-tunes')
+
+      expect(fine_tunes.object).to eql('list')
+      expect(fine_tunes.data.size).to eql(3)
+      expect(fine_tunes.data.first.id).to eql('ft-AF1WoRqd3aJAHsqc9NY7iL8F')
+      expect(fine_tunes.data.first.object).to eql('fine-tune')
+      expect(fine_tunes.data.first.model).to eql('curie')
+      expect(fine_tunes.data.first.created_at).to eql(1_614_807_352)
+      expect(fine_tunes.data.first.fine_tuned_model).to be_nil
+      expect(fine_tunes.data.first.hyperparams).to eql({})
+      expect(fine_tunes.data.first.organization_id).to eql('org-...')
+      expect(fine_tunes.data.first.result_files).to eql([])
+      expect(fine_tunes.data.first.status).to eql('pending')
+      expect(fine_tunes.data.first.validation_files).to eql([])
+      expect(fine_tunes.data.first.training_files).to eql([{}])
+      expect(fine_tunes.data.first.updated_at).to eql(1_614_807_352)
+    end
+  end
 end
