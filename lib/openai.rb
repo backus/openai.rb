@@ -65,20 +65,18 @@ class OpenAI
   private
 
   def get(route)
-    url = HOST.join(route).to_str
-    response = http_client.get(url)
-
-    unless response.status.success?
-      raise ResponseError, "Unexpected response #{response.status}\nBody:\n#{response.body}"
-    end
-
-    response.body.to_s
+    unwrap_response(http_client.get(url_for(route)))
   end
 
   def post(route, **body)
-    url = HOST.join(route).to_str
-    response = http_client.post(url, json: body)
+    unwrap_response(http_client.post(url_for(route), json: body))
+  end
 
+  def url_for(route)
+    HOST.join(route).to_str
+  end
+
+  def unwrap_response(response)
     unless response.status.success?
       raise ResponseError, "Unexpected response #{response.status}\nBody:\n#{response.body}"
     end
