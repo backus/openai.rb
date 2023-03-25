@@ -17,6 +17,8 @@ require 'openai/version'
 class OpenAI
   include Concord.new(:api_client)
 
+  ROOT = Pathname.new(__dir__).parent.expand_path.freeze
+
   def self.create(api_key, cache: nil)
     client = API::Client.new(api_key)
 
