@@ -104,6 +104,7 @@ GEM
 
 PLATFORMS
   arm64-darwin-21
+  ruby
 
 DEPENDENCIES
   dotenv (~> 2.8)
@@ -116,7 +117,7 @@ DEPENDENCIES
   slop (~> 4.10)
 
 RUBY VERSION
-   ruby 2.6.9p207
+   ruby 2.7.7p221
 
 BUNDLED WITH
    2.3.9
