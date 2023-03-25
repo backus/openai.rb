@@ -355,4 +355,55 @@ RSpec.describe OpenAI do
       expect(image_generation.data.map(&:url)).to contain_exactly('https://example.com/image1.png', 'https://example.com/image2.png')
     end
   end
+
+  describe '#create_file' do
+    let(:sample_file) { OpenAISpec::SPEC_ROOT.join('data/sample.jsonl') }
+
+    let(:response_body) do
+      {
+        "id": 'file-XjGxS3KTG0uNmNOK362iJua3',
+        "object": 'file',
+        "bytes": 140,
+        "created_at": 1_613_779_121,
+        "filename": 'sample.jsonl',
+        "purpose": 'fine-tune'
+      }
+    end
+
+    let(:response) do
+      instance_double(
+        HTTP::Response,
+        status: HTTP::Response::Status.new(200),
+        body: JSON.dump(response_body)
+      )
+    end
+
+    it 'can create a file' do
+      file = client.create_file(
+        file: sample_file,
+        purpose: 'fine-tune'
+      )
+
+      expect(http)
+        .to have_received(:post)
+        .with(
+          'https://api.openai.com/v1/files',
+          hash_including(
+            form: hash_including(
+              {
+                file: instance_of(HTTP::FormData::File),
+                purpose: 'fine-tune'
+              }
+            )
+          )
+        )
+
+      expect(file.id).to eql('file-XjGxS3KTG0uNmNOK362iJua3')
+      expect(file.object).to eql('file')
+      expect(file.bytes).to eql(140)
+      expect(file.created_at).to eql(1_613_779_121)
+      expect(file.filename).to eql('sample.jsonl')
+      expect(file.purpose).to eql('fine-tune')
+    end
+  end
 end

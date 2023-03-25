@@ -58,6 +58,14 @@ class OpenAI
     )
   end
 
+  def create_file(file:, purpose:)
+    absolute_path = Pathname.new(file).expand_path.to_s
+    form_file = HTTP::FormData::File.new(absolute_path)
+    Response::File.from_json(
+      post_form_multipart('/v1/files', file: form_file, purpose: purpose)
+    )
+  end
+
   def inspect
     "#<#{self.class}>"
   end
@@ -65,11 +73,15 @@ class OpenAI
   private
 
   def get(route)
-    unwrap_response(http_client.get(url_for(route)))
+    unwrap_response(json_http_client.get(url_for(route)))
   end
 
   def post(route, **body)
-    unwrap_response(http_client.post(url_for(route), json: body))
+    unwrap_response(json_http_client.post(url_for(route), json: body))
+  end
+
+  def post_form_multipart(route, **body)
+    unwrap_response(http_client.post(url_for(route), form: body))
   end
 
   def url_for(route)
@@ -84,11 +96,12 @@ class OpenAI
     response.body.to_s
   end
 
+  def json_http_client
+    http_client.headers('Content-Type' => 'application/json')
+  end
+
   def http_client
-    http.headers(
-      'Content-Type' => 'application/json',
-      'Authorization' => "Bearer #{api_key}"
-    )
+    http.headers('Authorization' => "Bearer #{api_key}")
   end
 
   class Response
@@ -237,6 +250,15 @@ class OpenAI
 
       field :created
       field :data, wrapper: Image
+    end
+
+    class File < JSONPayload
+      field :id
+      field :object
+      field :bytes
+      field :created_at
+      field :filename
+      field :purpose
     end
   end
 end

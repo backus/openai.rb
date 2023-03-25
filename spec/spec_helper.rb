@@ -6,6 +6,7 @@ require 'pry-byebug'
 
 module OpenAISpec
   ROOT = Pathname.new(__dir__).parent
+  SPEC_ROOT = ROOT.join('spec')
 end
 
 RSpec.configure do |config|
