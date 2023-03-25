@@ -58,7 +58,7 @@ class OpenAI
         include Memoizable
 
         def unique_id
-          serialized = JSON.dump(to_h)
+          serialized = JSON.dump(serialize_for_cache)
           digest = Digest::SHA256.hexdigest(serialized)
           bare_route = route.delete_prefix('/v1/')
           prefix = "#{verb}_#{bare_route}".gsub('/', '_')
@@ -67,6 +67,20 @@ class OpenAI
           "#{prefix}_#{fingerprint}"
         end
         memoize :unique_id
+
+        def serialize_for_cache
+          data = to_h
+          if data[:body]
+            data[:body] = data[:body].transform_values do |value|
+              if value.instance_of?(HTTP::FormData::File)
+                Digest::SHA256.hexdigest(value.to_s)
+              else
+                value
+              end
+            end
+          end
+          data
+        end
       end
 
       class Strategy
