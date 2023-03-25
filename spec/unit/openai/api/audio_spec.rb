@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe OpenAI, '#audio' do
+RSpec.describe OpenAI::API, '#audio' do
   include_context 'an API Resource'
 
   let(:resource) { client.audio }

@@ -1,4 +1,4 @@
-RSpec.describe OpenAI, '#moderations' do
+RSpec.describe OpenAI::API, '#moderations' do
   include_context 'an API Resource'
 
   let(:resource) { client.moderations }

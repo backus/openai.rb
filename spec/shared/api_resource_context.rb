@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 RSpec.shared_context 'an API Resource' do
-  let(:client)               { described_class.new('sk-123', http: http) }
-  let(:http)                 { class_spy(HTTP)                           }
-  let(:response_status_code) { 200                                       }
+  let(:client)               { OpenAI.new('sk-123', http: http).api }
+  let(:http)                 { class_spy(HTTP)                      }
+  let(:response_status_code) { 200                                  }
 
   let(:response) do
     instance_double(

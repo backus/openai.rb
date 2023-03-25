@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe OpenAI, '#fine_tunes' do
+RSpec.describe OpenAI::API, '#fine_tunes' do
   include_context 'an API Resource'
 
   let(:resource) { client.fine_tunes }
@@ -44,7 +44,7 @@ RSpec.describe OpenAI, '#fine_tunes' do
       expect(fine_tunes.data.first.created_at).to eql(1_614_807_352)
       expect(fine_tunes.data.first.fine_tuned_model).to be_nil
       expect(fine_tunes.data.first.hyperparams).to eql(
-        OpenAI::Response::FineTune::Hyperparams.new({})
+        described_class::Response::FineTune::Hyperparams.new({})
       )
       expect(fine_tunes.data.first.organization_id).to eql('org-...')
       expect(fine_tunes.data.first.result_files).to eql([])
@@ -52,7 +52,7 @@ RSpec.describe OpenAI, '#fine_tunes' do
       expect(fine_tunes.data.first.validation_files).to eql([])
       expect(fine_tunes.data.first.training_files).to eql(
         [
-          OpenAI::Response::FineTune::File.new({})
+          described_class::Response::FineTune::File.new({})
         ]
       )
       expect(fine_tunes.data.first.updated_at).to eql(1_614_807_352)

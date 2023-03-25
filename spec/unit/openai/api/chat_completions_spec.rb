@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe OpenAI, '#chat_completions' do
+RSpec.describe OpenAI::API, '#chat_completions' do
   include_context 'an API Resource'
 
   let(:resource) { client.chat_completions }

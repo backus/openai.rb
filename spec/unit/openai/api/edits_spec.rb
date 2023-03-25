@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe OpenAI, '#edits' do
+RSpec.describe OpenAI::API, '#edits' do
   include_context 'an API Resource'
 
   let(:resource) { client.edits }

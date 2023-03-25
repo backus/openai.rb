@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe OpenAI, '#files' do
+RSpec.describe OpenAI::API, '#files' do
   include_context 'an API Resource'
 
   let(:resource) { client.files }

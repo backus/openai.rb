@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe OpenAI::Response do
+RSpec.describe OpenAI::API::Response do
   before do
     user_class = Class.new(described_class) do
       field :username, path: %i[handle]
