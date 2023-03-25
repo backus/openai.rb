@@ -26,7 +26,33 @@ class OpenAI
       end
 
       def post(route, **body)
-        unwrap_response(json_http_client.post(url_for(route), json: body))
+        url = url_for(route)
+        if block_given?
+          json_http_client.persistent(url) do |connection|
+            response = connection.post(url, json: body)
+
+            # Data comes in as JSON frames like so:
+            #
+            #   data: {"choices": [{"text": "He"}]}
+            #   data: {"choices": [{"text": "llo, "}]}
+            #   data: {"choices": [{"text": "Wor"}]}
+            #   data: {"choices": [{"text": "ld!"}]}
+            #   data: [DONE]
+            #
+            # (The actual frames are fully formed JSON objects just like a
+            # non-streamed response, the examples above are just for brevity)
+            response.body.each do |chunk|
+              frame = chunk.delete_prefix('data: ').strip
+              yield(frame) unless frame == '[DONE]' || frame.empty?
+            end
+          end
+
+          # Return nil since we aren't reconstructing what the API would have
+          # returned if we had not streamed the response
+          nil
+        else
+          unwrap_response(json_http_client.post(url, json: body))
+        end
       end
 
       def post_form_multipart(route, **body)

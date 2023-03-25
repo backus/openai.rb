@@ -27,10 +27,24 @@ class OpenAI
     end
 
     class Completion < Resource
-      def create(model:, **kwargs)
-        Response::Completion.from_json(
-          post('/v1/completions', model: model, **kwargs)
-        )
+      def create(model:, stream: false, **kwargs)
+        if stream && !block_given?
+          raise 'Streaming responses require a block'
+        elsif !stream && block_given?
+          raise 'Non-streaming responses do not support a block'
+        end
+
+        if stream
+          post('/v1/completions', model: model, stream: stream, **kwargs) do |chunk|
+            yield(Response::Completion.from_json(chunk))
+          end
+
+          nil
+        else
+          Response::Completion.from_json(
+            post('/v1/completions', model: model, **kwargs)
+          )
+        end
       end
     end
 
