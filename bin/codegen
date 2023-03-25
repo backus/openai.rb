@@ -140,10 +140,12 @@ MSG
 
 assistant_response_json_example = <<~RUBY
   # api call
-  def create_completion(model:, **kwargs)
-    Response::Completion.from_json(
-      post('/v1/completions', model: model, **kwargs)
-    )
+  class Completion < self
+    def create(model:, **kwargs)
+      Response::Completion.from_json(
+        post('/v1/completions', model: model, **kwargs)
+      )
+    end
   end
 
   # wrapper
@@ -170,7 +172,11 @@ assistant_response_json_example = <<~RUBY
   end
 
   # test
-  describe '#create_completion' do
+  RSpec.describe OpenAI, '#completions' do
+    include_context 'an API Resource'
+
+    let(:resource) { client.completions }
+
     let(:response_body) do
       {
         "id": 'cmpl-uqkvlQyYK7bGYrRHQ0eXlWi7',
@@ -193,16 +199,8 @@ assistant_response_json_example = <<~RUBY
       }
     end
 
-    let(:response) do
-      instance_double(
-        HTTP::Response,
-        status: HTTP::Response::Status.new(200),
-        body: JSON.dump(response_body)
-      )
-    end
-
     it 'can create a completion' do
-      completion = client.create_completion(model: 'text-davinci-002', prompt: 'Hello, world!')
+      completion = resource.create(model: 'text-davinci-002', prompt: 'Hello, world!')
 
       expect(http)
         .to have_received(:post)
@@ -223,12 +221,12 @@ RUBY
 
 assistant_response_form_example = <<~RUBY
   # api call
-  def create_file(file:, purpose:)
-    absolute_path = Pathname.new(file).expand_path.to_s
-    form_file = HTTP::FormData::File.new(absolute_path)
-    Response::File.from_json(
-      post_form_multipart('/v1/files', file: form_file, purpose: purpose)
-    )
+  class File < self
+    def create(file:, purpose:)
+      Response::File.from_json(
+        post_form_multipart('/v1/files', file: form_file(file), purpose: purpose)
+      )
+    end
   end
 
   # wrapper
@@ -242,48 +240,58 @@ assistant_response_form_example = <<~RUBY
     optional_field :deleted?, path: :deleted
   end
 
+  class FileList < JSONPayload
+    field :data, wrapper: File
+    field :object
+  end
+
   # test
-  describe '#create_file' do
+  RSpec.describe OpenAI, '#files' do
+    include_context 'an API Resource'
+
+    let(:resource) { client.files }
     let(:sample_file) { OpenAISpec::SPEC_ROOT.join('data/sample.jsonl') }
 
-    let(:response_body) do
-      {
-        "id": 'file-XjGxS3KTG0uNmNOK362iJua3',
-        "object": 'file',
-        "bytes": 140,
-        "created_at": 1_613_779_121,
-        "filename": 'sample.jsonl',
-        "purpose": 'fine-tune'
-      }
-    end
+    context 'when creating a file' do
+      let(:response_body) do
+        {
+          "id": 'file-XjGxS3KTG0uNmNOK362iJua3',
+          "object": 'file',
+          "bytes": 140,
+          "created_at": 1_613_779_121,
+          "filename": 'sample.jsonl',
+          "purpose": 'fine-tune'
+        }
+      end
 
-    it 'can create a file' do
-      file = client.create_file(
-        file: sample_file,
-        purpose: 'fine-tune'
-      )
-
-      expect(http)
-        .to have_received(:post)
-        .with(
-          'https://api.openai.com/v1/files',
-          hash_including(
-            form: hash_including(
-              {
-                file: instance_of(HTTP::FormData::File),
-                purpose: 'fine-tune'
-              }
-            )
-          )
+      it 'can create a file' do
+        file = resource.create(
+          file: sample_file,
+          purpose: 'fine-tune'
         )
 
-      expect(file.id).to eql('file-XjGxS3KTG0uNmNOK362iJua3')
-      expect(file.object).to eql('file')
-      expect(file.bytes).to eql(140)
-      expect(file.created_at).to eql(1_613_779_121)
-      expect(file.filename).to eql('sample.jsonl')
-      expect(file.purpose).to eql('fine-tune')
-      expect(file.deleted?).to be(nil)
+        expect(http)
+          .to have_received(:post)
+          .with(
+            'https://api.openai.com/v1/files',
+            hash_including(
+              form: hash_including(
+                {
+                  file: instance_of(HTTP::FormData::File),
+                  purpose: 'fine-tune'
+                }
+              )
+            )
+          )
+
+        expect(file.id).to eql('file-XjGxS3KTG0uNmNOK362iJua3')
+        expect(file.object).to eql('file')
+        expect(file.bytes).to eql(140)
+        expect(file.created_at).to eql(1_613_779_121)
+        expect(file.filename).to eql('sample.jsonl')
+        expect(file.purpose).to eql('fine-tune')
+        expect(file.deleted?).to be(nil)
+      end
     end
   end
 RUBY
@@ -360,7 +368,7 @@ cache_file = cache_dir.join("#{codegen.verb}_#{codegen.route.gsub('/', '_')}.txt
 if cache_file.file?
   puts cache_file.read
 else
-  completion = api.create_chat_completion(
+  completion = api.chat_completions.create(
     model: 'gpt-3.5-turbo',
     messages: history,
     max_tokens: 2000,
