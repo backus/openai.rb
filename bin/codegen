@@ -125,13 +125,6 @@ end
 codegen = Codegen.parse_cli(ARGV)
 codegen.validate!
 
-create_completion_example =
-  codegen.with(
-    route: '/completions',
-    verb: 'post',
-    mime: 'application/json'
-  )
-
 user_message_template = <<~MSG
   Please create an API call, a response wrapper, and a test for this request.
   OpenAPI context in JSON:
@@ -144,7 +137,7 @@ user_message_template = <<~MSG
   SAMPLE RESPONSE: %<response>s
 MSG
 
-assistant_response = <<~RUBY
+assistant_response_json_example = <<~RUBY
   # api call
   def create_completion(model:, **kwargs)
     Response::Completion.from_json(
@@ -227,7 +220,81 @@ assistant_response = <<~RUBY
   end
 RUBY
 
-history = [
+assistant_response_form_example = <<~RUBY
+  # api call
+  def create_file(file:, purpose:)
+    absolute_path = Pathname.new(file).expand_path.to_s
+    form_file = HTTP::FormData::File.new(absolute_path)
+    Response::File.from_json(
+      post_form_multipart('/v1/files', file: form_file, purpose: purpose)
+    )
+  end
+
+  # wrapper
+  class File < JSONPayload
+    field :id
+    field :object
+    field :bytes
+    field :created_at
+    field :filename
+    field :purpose
+    optional_field :deleted?, path: :deleted
+  end
+
+  # test
+  describe '#create_file' do
+    let(:sample_file) { OpenAISpec::SPEC_ROOT.join('data/sample.jsonl') }
+
+    let(:response_body) do
+      {
+        "id": 'file-XjGxS3KTG0uNmNOK362iJua3',
+        "object": 'file',
+        "bytes": 140,
+        "created_at": 1_613_779_121,
+        "filename": 'sample.jsonl',
+        "purpose": 'fine-tune'
+      }
+    end
+
+    it 'can create a file' do
+      file = client.create_file(
+        file: sample_file,
+        purpose: 'fine-tune'
+      )
+
+      expect(http)
+        .to have_received(:post)
+        .with(
+          'https://api.openai.com/v1/files',
+          hash_including(
+            form: hash_including(
+              {
+                file: instance_of(HTTP::FormData::File),
+                purpose: 'fine-tune'
+              }
+            )
+          )
+        )
+
+      expect(file.id).to eql('file-XjGxS3KTG0uNmNOK362iJua3')
+      expect(file.object).to eql('file')
+      expect(file.bytes).to eql(140)
+      expect(file.created_at).to eql(1_613_779_121)
+      expect(file.filename).to eql('sample.jsonl')
+      expect(file.purpose).to eql('fine-tune')
+      expect(file.deleted?).to be(nil)
+    end
+  end
+RUBY
+
+create_completion_example =
+  codegen.with(
+    route: '/completions',
+    verb: 'post',
+    mime: 'application/json'
+  )
+
+history_json_example = [
   {
     role: 'user',
     content: format(
@@ -241,8 +308,37 @@ history = [
   },
   {
     role: 'assistant',
-    content: assistant_response
+    content: assistant_response_json_example
+  }
+]
+
+create_file_example =
+  codegen.with(
+    route: '/files',
+    verb: 'post',
+    mime: 'multipart/form-data'
+  )
+
+history_form_example = [
+  {
+    role: 'user',
+    content: format(
+      user_message_template,
+      mime: create_file_example.mime,
+      verb: create_file_example.verb,
+      route: create_file_example.route,
+      summary: create_file_example.request_body_summary,
+      response: create_file_example.sample_response
+    )
   },
+  {
+    role: 'assistant',
+    content: assistant_response_form_example
+  }
+]
+
+history = [
+  *(codegen.mime == 'application/json' ? history_json_example : history_form_example),
   {
     role: 'user',
     content: format(
