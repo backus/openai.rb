@@ -26,7 +26,7 @@ class OpenAI
 
   def create_chat_completion(model:, messages:, **kwargs)
     Response::ChatCompletion.from_json(
-      post('/v1/chat/completions', model: model, messages: messages, **kwargs)
+      post('/v1/chat-completions', model: model, messages: messages, **kwargs)
     )
   end
 
@@ -121,18 +121,18 @@ class OpenAI
     end
 
     class ChatCompletion < JSONPayload
-      class Message < JSONPayload
-        field :role
-        field :content
-      end
+      class Choice < JSONPayload
+        class Message < JSONPayload
+          field :role
+          field :content
+        end
 
-      class ChatChoice < JSONPayload
         field :index
         field :message, wrapper: Message
         field :finish_reason
       end
 
-      class ChatUsage < JSONPayload
+      class Usage < JSONPayload
         field :prompt_tokens
         field :completion_tokens
         field :total_tokens
@@ -141,9 +141,8 @@ class OpenAI
       field :id
       field :object
       field :created
-      field :model
-      field :choices, wrapper: ChatChoice
-      field :usage, wrapper: ChatUsage
+      field :choices, wrapper: Choice
+      field :usage, wrapper: Usage
     end
   end
 end

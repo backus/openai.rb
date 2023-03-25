@@ -70,14 +70,16 @@ RSpec.describe OpenAI do
         "id": 'chatcmpl-123',
         "object": 'chat.completion',
         "created": 1_677_652_288,
-        "choices": [{
-          "index": 0,
-          "message": {
-            "role": 'assistant',
-            "content": "\n\nHello there, how may I assist you today?"
-          },
-          "finish_reason": 'stop'
-        }],
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": 'assistant',
+              "content": "\n\nHello there, how may I assist you today?"
+            },
+            "finish_reason": 'stop'
+          }
+        ],
         "usage": {
           "prompt_tokens": 9,
           "completion_tokens": 12,
@@ -95,29 +97,12 @@ RSpec.describe OpenAI do
     end
 
     it 'can create a chat completion' do
-      completion = client.create_chat_completion(
-        model: 'gpt-3.5-turbo',
-        messages: [
-          {
-            text: 'Hi there!',
-            speaker: 'user'
-          },
-          {
-            text: 'Hello there, how may I assist you today?',
-            speaker: 'assistant'
-          }
-        ],
-        temperature: 1,
-        top_p: 1,
-        n: 1,
-        stream: false,
-        stop: nil,
-        max_tokens: Float::INFINITY,
-        presence_penalty: 0,
-        frequency_penalty: 0,
-        logit_bias: nil,
-        user: nil
-      )
+      messages = [
+        { "text": 'Hello there!', "user": 'customer' },
+        { "text": 'Can you help me with my order?', "user": 'customer' },
+        { "text": 'Sure, what would you like to do?', "user": 'assistant' }
+      ]
+      completion = client.create_chat_completion(model: 'text-davinci-002', messages: messages)
 
       expect(completion.id).to eql('chatcmpl-123')
       expect(completion.choices.first.index).to eql(0)
