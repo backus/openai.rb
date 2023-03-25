@@ -319,4 +319,40 @@ RSpec.describe OpenAI do
       expect(edit.usage.total_tokens).to eql(57)
     end
   end
+
+  describe '#create_image_generation' do
+    let(:response_body) do
+      {
+        created: Time.now.to_i,
+        data: [
+          { url: 'https://example.com/image1.png' },
+          { url: 'https://example.com/image2.png' }
+        ]
+      }
+    end
+
+    let(:response) do
+      instance_double(
+        HTTP::Response,
+        status: HTTP::Response::Status.new(200),
+        body: JSON.dump(response_body)
+      )
+    end
+
+    it 'can create an image generation' do
+      image_generation = client.create_image_generation(prompt: 'a bird in the forest', size: 512)
+
+      expect(http)
+        .to have_received(:post)
+        .with(
+          'https://api.openai.com/v1/images/generations',
+          hash_including(
+            json: hash_including(prompt: 'a bird in the forest', size: 512)
+          )
+        )
+
+      expect(image_generation.created).to be_within(1).of(Time.now.to_i)
+      expect(image_generation.data.map(&:url)).to contain_exactly('https://example.com/image1.png', 'https://example.com/image2.png')
+    end
+  end
 end

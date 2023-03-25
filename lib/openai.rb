@@ -52,6 +52,12 @@ class OpenAI
     )
   end
 
+  def create_image_generation(prompt:, **kwargs)
+    Response::ImageGeneration.from_json(
+      post('/v1/images/generations', prompt: prompt, **kwargs)
+    )
+  end
+
   def inspect
     "#<#{self.class}>"
   end
@@ -224,6 +230,15 @@ class OpenAI
       field :created
       field :choices, wrapper: Choice
       field :usage, wrapper: Usage
+    end
+
+    class ImageGeneration < JSONPayload
+      class Image < JSONPayload
+        field :url
+      end
+
+      field :created
+      field :data, wrapper: Image
     end
   end
 end
