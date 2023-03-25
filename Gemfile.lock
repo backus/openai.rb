@@ -28,6 +28,7 @@ GEM
     diff-lcs (1.5.0)
     domain_name (0.5.20190701)
       unf (>= 0.0.5, < 1.0.0)
+    dotenv (2.8.1)
     equalizer (0.0.11)
     ffi (1.15.5)
     ffi-compiler (1.0.1)
@@ -104,6 +105,7 @@ PLATFORMS
   arm64-darwin-21
 
 DEPENDENCIES
+  dotenv (~> 2.8)
   openai.rb!
   pry (~> 0.13.1)
   pry-byebug (~> 3.9)

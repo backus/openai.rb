@@ -1,0 +1,16 @@
+#!/usr/bin/env ruby
+
+require 'bundler/setup'
+require 'openai'
+require 'dotenv'
+require 'pry'
+require 'pry-byebug'
+
+Dotenv.load
+
+def start_repl
+  api = OpenAI.new(ENV.fetch('OPENAI_API_KEY'))
+  binding.pry
+end
+
+start_repl
