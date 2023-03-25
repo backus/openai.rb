@@ -9,6 +9,7 @@ require 'ice_nine'
 require 'tiktoken_ruby'
 
 require 'openai/tokenizer'
+require 'openai/chat'
 require 'openai/api'
 require 'openai/api/cache'
 require 'openai/api/client'
@@ -44,4 +45,8 @@ class OpenAI
     Tokenizer.new
   end
   alias tokens tokenizer
+
+  def chat(model:, history: [], **kwargs)
+    Chat.new(api: api, settings: kwargs.merge(model: model), messages: history)
+  end
 end
