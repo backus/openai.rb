@@ -94,6 +94,12 @@ class OpenAI
     )
   end
 
+  def create_fine_tune(training_file:, **kwargs)
+    Response::FineTune.from_json(
+      post('/v1/fine-tunes', training_file: training_file, **kwargs)
+    )
+  end
+
   def inspect
     "#<#{self.class}>"
   end
@@ -300,17 +306,41 @@ class OpenAI
     end
 
     class FineTune < JSONPayload
+      class Event < JSONPayload
+        field :object
+        field :created_at
+        field :level
+        field :message
+      end
+
+      class Hyperparams < JSONPayload
+        field :batch_size
+        field :learning_rate_multiplier
+        field :n_epochs
+        field :prompt_loss_weight
+      end
+
+      class File < JSONPayload
+        field :id
+        field :object
+        field :bytes
+        field :created_at
+        field :filename
+        field :purpose
+      end
+
       field :id
       field :object
       field :model
       field :created_at
+      field :events, wrapper: Event
       field :fine_tuned_model
-      field :hyperparams
+      field :hyperparams, wrapper: Hyperparams
       field :organization_id
       field :result_files
       field :status
       field :validation_files
-      field :training_files
+      field :training_files, wrapper: File
       field :updated_at
     end
 
