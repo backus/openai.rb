@@ -6,7 +6,9 @@ require 'abstract_type'
 require 'http'
 require 'addressable'
 require 'ice_nine'
+require 'tiktoken_ruby'
 
+require 'openai/tokenizer'
 require 'openai/api'
 require 'openai/api/cache'
 require 'openai/api/client'
@@ -36,5 +38,9 @@ class OpenAI
 
   def api
     API.new(api_client)
+  end
+
+  def tokenizer
+    Tokenizer.new
   end
 end

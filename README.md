@@ -1,6 +1,6 @@
 # OpenAI.rb
 
-A comprehensive (as of March 25th, 2023) OpenAI API wrapper with built-in support for caching and response streaming.
+A comprehensive (as of March 25th, 2023) OpenAI API wrapper with built-in support for caching, tokenization, response streaming.
 
 ## Install and Setup
 
@@ -45,6 +45,19 @@ openai.api.completions.create(model: 'text-davinci-002', prompt: 'Say hi')
 ```
 
 NOTE: Delete requests are not cached
+
+### Tokens
+
+```ruby
+# Get encoder for a model and encode
+openai.tokens.for_model('gpt-4').encode('Hello world')
+
+# Get encoder by name
+openai.tokens.get('cl100k_base').encode('Hello world')
+
+# Get number of tokens
+openai.tokens.for_model('gpt-4').num_tokens('Hello, world!') # => 4
+```
 
 ## API
 

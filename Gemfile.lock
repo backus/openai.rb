@@ -8,6 +8,7 @@ PATH
       http (~> 5.1)
       ice_nine (~> 0.11.x)
       memoizable (~> 0.4.2)
+      tiktoken_ruby (~> 0.0.3)
 
 GEM
   remote: https://rubygems.org/
@@ -97,6 +98,7 @@ GEM
     ruby-progressbar (1.13.0)
     slop (4.10.1)
     thread_safe (0.3.6)
+    tiktoken_ruby (0.0.3)
     unf (0.1.4)
       unf_ext
     unf_ext (0.0.8.2)
