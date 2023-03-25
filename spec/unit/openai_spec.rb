@@ -229,4 +229,94 @@ RSpec.describe OpenAI do
       expect(models.data[2].permission).to eql([7, 8, 9])
     end
   end
+
+  describe '#get_model' do
+    let(:response_body) do
+      {
+        "id": 'text-davinci-002',
+        "object": 'model',
+        "owned_by": 'openai',
+        "permission": %w[
+          query
+          completions
+          models:read
+          models:write
+          engine:read
+          engine:write
+        ]
+      }
+    end
+
+    let(:response) do
+      instance_double(
+        HTTP::Response,
+        status: HTTP::Response::Status.new(200),
+        body: JSON.dump(response_body)
+      )
+    end
+
+    it 'can retrieve a model' do
+      model = client.get_model('text-davinci-002')
+
+      expect(http)
+        .to have_received(:get)
+        .with('https://api.openai.com/v1/models/text-davinci-002')
+
+      expect(model.id).to eql('text-davinci-002')
+      expect(model.object).to eql('model')
+      expect(model.owned_by).to eql('openai')
+      expect(model.permission).to eql(%w[
+                                        query
+                                        completions
+                                        models:read
+                                        models:write
+                                        engine:read
+                                        engine:write
+                                      ])
+    end
+  end
+
+  describe '#create_edit' do
+    let(:response_body) do
+      {
+        "object": 'edit',
+        "created": 1_589_478_378,
+        "choices": [
+          {
+            "text": 'What day of the week is it?',
+            "index": 0
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 25,
+          "completion_tokens": 32,
+          "total_tokens": 57
+        }
+      }
+    end
+
+    let(:response) do
+      instance_double(
+        HTTP::Response,
+        status: HTTP::Response::Status.new(200),
+        body: JSON.dump(response_body)
+      )
+    end
+
+    it 'can create an edit' do
+      edit = client.create_edit(model: 'text-davinci-002',
+                                instruction: 'Change "world" to "solar system" in the following text: "Hello, world!"')
+
+      expect(http)
+        .to have_received(:post)
+        .with('https://api.openai.com/v1/edits', hash_including(:json))
+
+      expect(edit.object).to eql('edit')
+      expect(edit.choices.first.text).to eql('What day of the week is it?')
+      expect(edit.choices.first.index).to eql(0)
+      expect(edit.usage.prompt_tokens).to eql(25)
+      expect(edit.usage.completion_tokens).to eql(32)
+      expect(edit.usage.total_tokens).to eql(57)
+    end
+  end
 end

@@ -40,6 +40,18 @@ class OpenAI
     Response::ListModel.from_json(get('/v1/models'))
   end
 
+  def get_model(model_id)
+    Response::Model.from_json(
+      get("/v1/models/#{model_id}")
+    )
+  end
+
+  def create_edit(model:, instruction:, **kwargs)
+    Response::Edit.from_json(
+      post('/v1/edits', model: model, instruction: instruction, **kwargs)
+    )
+  end
+
   def inspect
     "#<#{self.class}>"
   end
@@ -194,6 +206,24 @@ class OpenAI
 
     class ListModel < JSONPayload
       field :data, wrapper: Model
+    end
+
+    class Edit < JSONPayload
+      class Choice < JSONPayload
+        field :text
+        field :index
+      end
+
+      class Usage < JSONPayload
+        field :prompt_tokens
+        field :completion_tokens
+        field :total_tokens
+      end
+
+      field :object
+      field :created
+      field :choices, wrapper: Choice
+      field :usage, wrapper: Usage
     end
   end
 end
