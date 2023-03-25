@@ -125,7 +125,7 @@ class OpenAI
         field :created
         field :model
         field :choices, wrapper: Choice
-        field :usage, wrapper: Usage
+        optional_field :usage, wrapper: Usage
       end
 
       class ChatCompletion < Response

@@ -31,7 +31,7 @@ class OpenAI
         if stream && !block_given?
           raise 'Streaming responses require a block'
         elsif !stream && block_given?
-          raise 'Non-streaming responses do not support a block'
+          raise 'Non-streaming responses do not support blocks'
         end
 
         if stream
