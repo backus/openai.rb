@@ -14,7 +14,21 @@ require 'openai/version'
 class OpenAI
   include Concord.new(:api_key, :http)
 
-  ResponseError = Class.new(StandardError)
+  class API
+    class Error < StandardError
+      include Concord::Public.new(:http_response)
+
+      def message
+        <<~ERROR
+          Unexpected response status! Expected 2xx but got: #{http_response.status}
+
+          Body:
+
+          #{http_response.body}
+        ERROR
+      end
+    end
+  end
 
   HOST = Addressable::URI.parse('https://api.openai.com/v1')
 
@@ -89,11 +103,9 @@ class OpenAI
   end
 
   def unwrap_response(response)
-    unless response.status.success?
-      raise ResponseError, "Unexpected response #{response.status}\nBody:\n#{response.body}"
-    end
+    raise API::Error, response unless response.status.success?
 
-    response.body.to_s
+    response.body.to_str
   end
 
   def json_http_client
