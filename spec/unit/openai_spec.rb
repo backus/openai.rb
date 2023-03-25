@@ -7,6 +7,7 @@ RSpec.describe OpenAI do
   before do
     allow(http).to receive(:post).and_return(response)
     allow(http).to receive(:get).and_return(response)
+    allow(http).to receive(:delete).and_return(response)
   end
 
   describe '#create_completion' do
@@ -404,6 +405,7 @@ RSpec.describe OpenAI do
       expect(file.created_at).to eql(1_613_779_121)
       expect(file.filename).to eql('sample.jsonl')
       expect(file.purpose).to eql('fine-tune')
+      expect(file.deleted?).to be(nil)
     end
   end
 
@@ -455,6 +457,36 @@ RSpec.describe OpenAI do
       expect(files.data.first.filename).to eql('train.jsonl')
       expect(files.data.first.purpose).to eql('search')
       expect(files.object).to eql('list')
+    end
+  end
+
+  describe '#delete_file' do
+    let(:response_body) do
+      {
+        "id": 'file-XjGxS3KTG0uNmNOK362iJua3',
+        "object": 'file',
+        "deleted": true
+      }
+    end
+
+    let(:response) do
+      instance_double(
+        HTTP::Response,
+        status: HTTP::Response::Status.new(200),
+        body: JSON.dump(response_body)
+      )
+    end
+
+    it 'can delete a file' do
+      file = client.delete_file('file-XjGxS3KTG0uNmNOK362iJua3')
+
+      expect(http)
+        .to have_received(:delete)
+        .with('https://api.openai.com/v1/files/file-XjGxS3KTG0uNmNOK362iJua3')
+
+      expect(file.id).to eql('file-XjGxS3KTG0uNmNOK362iJua3')
+      expect(file.object).to eql('file')
+      expect(file.deleted?).to be_truthy
     end
   end
 end

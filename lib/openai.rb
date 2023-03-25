@@ -72,6 +72,12 @@ class OpenAI
     )
   end
 
+  def delete_file(file_id)
+    Response::File.from_json(
+      delete("/v1/files/#{file_id}")
+    )
+  end
+
   def inspect
     "#<#{self.class}>"
   end
@@ -80,6 +86,10 @@ class OpenAI
 
   def get(route)
     unwrap_response(json_http_client.get(url_for(route)))
+  end
+
+  def delete(route)
+    unwrap_response(json_http_client.delete(url_for(route)))
   end
 
   def post(route, **body)
@@ -137,10 +147,10 @@ class OpenAI
 
       private
 
-      def optional_field(*key_path)
+      def optional_field(key_path)
         *head, tail = key_path
 
-        field(*head)[tail]
+        field(head)[tail]
       end
 
       def field(key_path, wrapper: nil)
@@ -265,6 +275,7 @@ class OpenAI
       field :created_at
       field :filename
       field :purpose
+      optional_field :deleted?, path: :deleted
     end
 
     class FileList < JSONPayload
