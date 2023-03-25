@@ -22,6 +22,12 @@ class OpenAI
     )
   end
 
+  def create_chat_completion(model:, messages:, **kwargs)
+    Response::ChatCompletion.from_json(
+      post('/v1/chat_completions', model: model, messages: messages, **kwargs)
+    )
+  end
+
   def inspect
     "#<#{self.class}>"
   end
@@ -110,6 +116,32 @@ class OpenAI
       field :model
       field :choices, wrapper: Choice
       field :usage, wrapper: Usage
+    end
+
+    class ChatCompletion < JSONPayload
+      class Message < JSONPayload
+        field :role
+        field :content
+      end
+
+      class ChatChoice < JSONPayload
+        field :index
+        field :message, wrapper: Message
+        field :finish_reason
+      end
+
+      class ChatUsage < JSONPayload
+        field :prompt_tokens
+        field :completion_tokens
+        field :total_tokens
+      end
+
+      field :id
+      field :object
+      field :created
+      field :model
+      field :choices, wrapper: ChatChoice
+      field :usage, wrapper: ChatUsage
     end
   end
 end
