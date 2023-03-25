@@ -206,7 +206,7 @@ RSpec.describe OpenAI, '#fine_tunes' do
     end
 
     it 'can get a fine-tune' do
-      fine_tune = resource.get('ft-AF1WoRqd3aJAHsqc9NY7iL8F')
+      fine_tune = resource.fetch('ft-AF1WoRqd3aJAHsqc9NY7iL8F')
 
       expect(http)
         .to have_received(:get)

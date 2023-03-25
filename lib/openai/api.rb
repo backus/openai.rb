@@ -16,6 +16,18 @@ class OpenAI
 
     private
 
+    def post(...)
+      client.post(...)
+    end
+
+    def post_form_multipart(...)
+      client.post_form_multipart(...)
+    end
+
+    def get(...)
+      client.get(...)
+    end
+
     def form_file(path)
       absolute_path = Pathname.new(path).expand_path.to_s
       HTTP::FormData::File.new(absolute_path)
@@ -24,7 +36,7 @@ class OpenAI
     class Completion < self
       def create(model:, **kwargs)
         Response::Completion.from_json(
-          client.post('/v1/completions', model: model, **kwargs)
+          post('/v1/completions', model: model, **kwargs)
         )
       end
     end
@@ -32,7 +44,7 @@ class OpenAI
     class ChatCompletion < self
       def create(model:, messages:, **kwargs)
         Response::ChatCompletion.from_json(
-          client.post('/v1/chat/completions', model: model, messages: messages, **kwargs)
+          post('/v1/chat/completions', model: model, messages: messages, **kwargs)
         )
       end
     end
@@ -40,19 +52,19 @@ class OpenAI
     class Embedding < self
       def create(model:, input:, **kwargs)
         Response::Embedding.from_json(
-          client.post('/v1/embeddings', model: model, input: input, **kwargs)
+          post('/v1/embeddings', model: model, input: input, **kwargs)
         )
       end
     end
 
     class Model < self
       def list
-        Response::ListModel.from_json(client.get('/v1/models'))
+        Response::ListModel.from_json(get('/v1/models'))
       end
 
-      def get(model_id)
+      def fetch(model_id)
         Response::Model.from_json(
-          client.get("/v1/models/#{model_id}")
+          get("/v1/models/#{model_id}")
         )
       end
     end
@@ -60,7 +72,7 @@ class OpenAI
     class Edit < self
       def create(model:, instruction:, **kwargs)
         Response::Edit.from_json(
-          client.post('/v1/edits', model: model, instruction: instruction, **kwargs)
+          post('/v1/edits', model: model, instruction: instruction, **kwargs)
         )
       end
     end
@@ -68,13 +80,13 @@ class OpenAI
     class File < self
       def create(file:, purpose:)
         Response::File.from_json(
-          client.post_form_multipart('/v1/files', file: form_file(file), purpose: purpose)
+          post_form_multipart('/v1/files', file: form_file(file), purpose: purpose)
         )
       end
 
       def list
         Response::FileList.from_json(
-          client.get('/v1/files')
+          get('/v1/files')
         )
       end
 
@@ -84,39 +96,39 @@ class OpenAI
         )
       end
 
-      def get(file_id)
+      def fetch(file_id)
         Response::File.from_json(
-          client.get("/v1/files/#{file_id}")
+          get("/v1/files/#{file_id}")
         )
       end
 
       def get_content(file_id)
-        client.get("/v1/files/#{file_id}/content")
+        get("/v1/files/#{file_id}/content")
       end
     end
 
     class FineTune < self
       def list
         Response::FineTuneList.from_json(
-          client.get('/v1/fine-tunes')
+          get('/v1/fine-tunes')
         )
       end
 
       def create(training_file:, **kwargs)
         Response::FineTune.from_json(
-          client.post('/v1/fine-tunes', training_file: training_file, **kwargs)
+          post('/v1/fine-tunes', training_file: training_file, **kwargs)
         )
       end
 
-      def get(fine_tune_id)
+      def fetch(fine_tune_id)
         Response::FineTune.from_json(
-          client.get("/v1/fine-tunes/#{fine_tune_id}")
+          get("/v1/fine-tunes/#{fine_tune_id}")
         )
       end
 
       def cancel(fine_tune_id)
         Response::FineTune.from_json(
-          client.post("/v1/fine-tunes/#{fine_tune_id}/cancel")
+          post("/v1/fine-tunes/#{fine_tune_id}/cancel")
         )
       end
     end
@@ -124,7 +136,7 @@ class OpenAI
     class Image < self
       def create(prompt:, **kwargs)
         Response::ImageGeneration.from_json(
-          client.post('/v1/images/generations', prompt: prompt, **kwargs)
+          post('/v1/images/generations', prompt: prompt, **kwargs)
         )
       end
     end
@@ -132,7 +144,7 @@ class OpenAI
     class Audio < self
       def transcribe(file:, model:, **kwargs)
         Response::Transcription.from_json(
-          client.post_form_multipart(
+          post_form_multipart(
             '/v1/audio/transcriptions',
             file: form_file(file),
             model: model,
@@ -143,7 +155,7 @@ class OpenAI
 
       def translate(file:, model:, **kwargs)
         Response::Transcription.from_json(
-          client.post_form_multipart(
+          post_form_multipart(
             '/v1/audio/translations',
             file: form_file(file),
             model: model,

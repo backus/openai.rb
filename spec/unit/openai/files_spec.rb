@@ -126,7 +126,7 @@ RSpec.describe OpenAI, '#files' do
     end
 
     it 'can get a file' do
-      file = resource.get('file-XjGxS3KTG0uNmNOK362iJua3')
+      file = resource.fetch('file-XjGxS3KTG0uNmNOK362iJua3')
 
       expect(http)
         .to have_received(:get)

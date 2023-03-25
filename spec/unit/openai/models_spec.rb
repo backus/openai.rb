@@ -76,7 +76,7 @@ RSpec.describe OpenAI, '#models' do
     end
 
     it 'can retrieve a model' do
-      model = resource.get('text-davinci-002')
+      model = resource.fetch('text-davinci-002')
 
       expect(http)
         .to have_received(:get)
