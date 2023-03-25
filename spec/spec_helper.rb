@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require 'openai'
+require 'pry'
+require 'pry-byebug'
 
 module OpenAISpec
   ROOT = Pathname.new(__dir__).parent
