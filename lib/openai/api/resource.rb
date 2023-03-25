@@ -49,10 +49,30 @@ class OpenAI
     end
 
     class ChatCompletion < Resource
-      def create(model:, messages:, **kwargs)
-        Response::ChatCompletion.from_json(
-          post('/v1/chat/completions', model: model, messages: messages, **kwargs)
-        )
+      def create(model:, messages:, stream: false, **kwargs)
+        if stream && !block_given?
+          raise 'Streaming responses require a block'
+        elsif !stream && block_given?
+          raise 'Non-streaming responses do not support a block'
+        end
+
+        if stream
+          post(
+            '/v1/chat/completions',
+            model: model,
+            stream: stream,
+            messages: messages,
+            **kwargs
+          ) do |chunk|
+            yield(Response::ChatCompletionChunk.from_json(chunk))
+          end
+
+          nil
+        else
+          Response::ChatCompletion.from_json(
+            post('/v1/chat/completions', model: model, messages: messages, **kwargs)
+          )
+        end
       end
     end
 

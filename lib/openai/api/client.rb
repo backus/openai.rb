@@ -42,8 +42,11 @@ class OpenAI
             # (The actual frames are fully formed JSON objects just like a
             # non-streamed response, the examples above are just for brevity)
             response.body.each do |chunk|
-              frame = chunk.delete_prefix('data: ').strip
-              yield(frame) unless frame == '[DONE]' || frame.empty?
+              chunk.split("\n\n").each do |part|
+                frame = part.delete_prefix('data: ').strip
+
+                yield(frame) unless frame == '[DONE]' || frame.empty?
+              end
             end
           end
 

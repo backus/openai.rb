@@ -153,6 +153,27 @@ class OpenAI
         field :usage, wrapper: Usage
       end
 
+      class ChatCompletionChunk < Response
+        class Delta < Response
+          optional_field :role
+          optional_field :_content, path: %i[content]
+
+          def content
+            _content.to_s
+          end
+        end
+
+        class Choice < Response
+          field :delta, wrapper: Delta
+        end
+
+        field :id
+        field :object
+        field :created
+        field :model
+        field :choices, wrapper: Choice
+      end
+
       class Embedding < Response
         class EmbeddingData < Response
           field :object
