@@ -24,10 +24,15 @@ class OpenAI
         absolute_path = Pathname.new(path).expand_path.to_s
         HTTP::FormData::File.new(absolute_path)
       end
-    end
 
-    class Completion < Resource
-      def create(model:, stream: false, **kwargs)
+      def create_and_maybe_stream(
+        endpoint,
+        full_response_type:, stream: false,
+        chunk_response_type: full_response_type,
+        **kwargs
+      )
+        payload = kwargs.merge(stream: stream)
+
         if stream && !block_given?
           raise 'Streaming responses require a block'
         elsif !stream && block_given?
@@ -35,44 +40,42 @@ class OpenAI
         end
 
         if stream
-          post('/v1/completions', model: model, stream: stream, **kwargs) do |chunk|
-            yield(Response::Completion.from_json(chunk))
+          post(endpoint, **payload) do |chunk|
+            yield(chunk_response_type.from_json(chunk))
           end
 
           nil
         else
-          Response::Completion.from_json(
-            post('/v1/completions', model: model, **kwargs)
+          full_response_type.from_json(
+            post(endpoint, **payload)
           )
         end
       end
     end
 
+    class Completion < Resource
+      def create(model:, **kwargs, &block)
+        create_and_maybe_stream(
+          '/v1/completions',
+          model: model,
+          full_response_type: Response::Completion,
+          **kwargs,
+          &block
+        )
+      end
+    end
+
     class ChatCompletion < Resource
-      def create(model:, messages:, stream: false, **kwargs)
-        if stream && !block_given?
-          raise 'Streaming responses require a block'
-        elsif !stream && block_given?
-          raise 'Non-streaming responses do not support blocks'
-        end
-
-        if stream
-          post(
-            '/v1/chat/completions',
-            model: model,
-            stream: stream,
-            messages: messages,
-            **kwargs
-          ) do |chunk|
-            yield(Response::ChatCompletionChunk.from_json(chunk))
-          end
-
-          nil
-        else
-          Response::ChatCompletion.from_json(
-            post('/v1/chat/completions', model: model, messages: messages, **kwargs)
-          )
-        end
+      def create(model:, messages:, **kwargs, &block)
+        create_and_maybe_stream(
+          '/v1/chat/completions',
+          model: model,
+          messages: messages,
+          full_response_type: Response::ChatCompletion,
+          chunk_response_type: Response::ChatCompletionChunk,
+          **kwargs,
+          &block
+        )
       end
     end
 
