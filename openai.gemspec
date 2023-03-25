@@ -21,4 +21,5 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'http',          '~> 5.1'
   spec.add_dependency 'memoizable',    '~> 0.4.2'
   spec.add_dependency 'abstract_type', '~> 0.0.7'
+  spec.add_dependency 'ice_nine',      '~> 0.11.x'
 end

@@ -5,6 +5,7 @@ require 'anima'
 require 'abstract_type'
 require 'http'
 require 'addressable'
+require 'ice_nine'
 
 require 'openai/api'
 require 'openai/response'

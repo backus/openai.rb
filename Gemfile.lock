@@ -6,6 +6,7 @@ PATH
       anima (~> 0.3)
       concord (~> 0.1)
       http (~> 5.1)
+      ice_nine (~> 0.11.x)
       memoizable (~> 0.4.2)
 
 GEM

@@ -14,20 +14,50 @@ class OpenAI
     include Concord.new(:internal_data)
     include AbstractType
 
+    class MissingFieldError < StandardError
+      include Anima.new(:path, :missing_key, :actual_payload)
+
+      def message
+        <<~ERROR
+          Missing field #{missing_key.inspect} in response payload!
+          Was attempting to access value at path `#{path}`.
+          Payload: #{JSON.pretty_generate(actual_payload)}
+        ERROR
+      end
+    end
+
+    class << self
+      private
+
+      attr_accessor :field_registry
+    end
+
+    def self.register_field(field_name)
+      self.field_registry ||= []
+      field_registry << field_name
+    end
+
     def self.from_json(raw_json)
       new(JSON.parse(raw_json, symbolize_names: true))
     end
 
+    def initialize(internal_data)
+      super(IceNine.deep_freeze(internal_data))
+    end
+
     def self.field(name, path: [name], wrapper: nil)
-      given_wrapper = wrapper
+      register_field(name)
+
       define_method(name) do
-        field(path, wrapper: given_wrapper)
+        field(path, wrapper: wrapper)
       end
     end
 
-    def self.optional_field(name, path: name)
+    def self.optional_field(name, path: name, wrapper: nil)
+      register_field(name)
+
       define_method(name) do
-        optional_field(path)
+        optional_field(path, wrapper: wrapper)
       end
     end
 
@@ -35,19 +65,49 @@ class OpenAI
       internal_data
     end
 
+    def inspect
+      attr_list = field_list.map do |field_name|
+        "#{field_name}=#{__send__(field_name).inspect}"
+      end.join(' ')
+      "#<#{self.class} #{attr_list}>"
+    end
+
     private
 
-    def optional_field(key_path)
+    # We need to access the registry list from the instance for `#inspect`.
+    # It is just private in terms of the public API which is why we do this
+    # weird private dispatch on our own class.
+    def field_list
+      self.class.__send__(:field_registry)
+    end
+
+    def optional_field(key_path, wrapper: nil)
       *head, tail = key_path
 
-      field(head)[tail]
+      parent = field(head)
+      return unless parent.key?(tail)
+
+      wrap_value(parent.fetch(tail), wrapper)
     end
 
     def field(key_path, wrapper: nil)
-      value = key_path.reduce(internal_data, :fetch)
+      value = key_path.reduce(internal_data) do |object, key|
+        object.fetch(key) do
+          raise MissingFieldError.new(
+            path: key_path,
+            missing_key: key,
+            actual_payload: internal_data
+          )
+        end
+      end
+
+      wrap_value(value, wrapper)
+    end
+
+    def wrap_value(value, wrapper)
       return value unless wrapper
 
-      if value.is_a?(Array)
+      if value.instance_of?(Array)
         value.map { |item| wrapper.new(item) }
       else
         wrapper.new(value)
