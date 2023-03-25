@@ -43,4 +43,5 @@ class OpenAI
   def tokenizer
     Tokenizer.new
   end
+  alias tokens tokenizer
 end
