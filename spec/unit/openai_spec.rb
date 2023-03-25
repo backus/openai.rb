@@ -18,7 +18,7 @@ RSpec.describe OpenAI do
     )
   end
 
-  describe '#create_completion' do
+  describe '#completions.create' do
     let(:response_body) do
       {
         "id": 'cmpl-uqkvlQyYK7bGYrRHQ0eXlWi7',
@@ -42,7 +42,7 @@ RSpec.describe OpenAI do
     end
 
     it 'authenticates requests' do
-      client.create_completion(model: 'text-davinci-002', prompt: 'Hello, world!')
+      client.completions.create(model: 'text-davinci-002', prompt: 'Hello, world!')
 
       expect(http).to have_received(:headers).with(
         hash_including(
@@ -52,7 +52,7 @@ RSpec.describe OpenAI do
     end
 
     it 'can create a completion' do
-      completion = client.create_completion(model: 'text-davinci-002', prompt: 'Hello, world!')
+      completion = client.completions.create(model: 'text-davinci-002', prompt: 'Hello, world!')
 
       expect(http)
         .to have_received(:post)
@@ -70,7 +70,7 @@ RSpec.describe OpenAI do
     end
   end
 
-  describe '#create_chat_completion' do
+  describe '#chat_completions.create' do
     let(:response_body) do
       {
         "id": 'chatcmpl-123',
@@ -100,7 +100,7 @@ RSpec.describe OpenAI do
         { "text": 'Can you help me with my order?', "user": 'customer' },
         { "text": 'Sure, what would you like to do?', "user": 'assistant' }
       ]
-      completion = client.create_chat_completion(model: 'text-davinci-002', messages: messages)
+      completion = client.chat_completions.create(model: 'text-davinci-002', messages: messages)
 
       expect(completion.id).to eql('chatcmpl-123')
       expect(completion.choices.first.index).to eql(0)
@@ -113,7 +113,7 @@ RSpec.describe OpenAI do
     end
   end
 
-  describe '#create_embedding' do
+  describe '#embeddings.create' do
     let(:response_body) do
       {
         "object": 'list',
@@ -137,7 +137,7 @@ RSpec.describe OpenAI do
     end
 
     it 'can create an embedding' do
-      embedding = client.create_embedding(model: 'text-embedding-ada-002', input: 'Hello, world!')
+      embedding = client.embeddings.create(model: 'text-embedding-ada-002', input: 'Hello, world!')
 
       expect(http)
         .to have_received(:post)
@@ -154,7 +154,7 @@ RSpec.describe OpenAI do
     end
   end
 
-  describe '#list_models' do
+  describe '#models.list' do
     let(:response_body) do
       {
         data: [
@@ -182,7 +182,7 @@ RSpec.describe OpenAI do
     end
 
     it 'can list all models' do
-      models = client.list_models
+      models = client.models.list
 
       expect(http)
         .to have_received(:get)
@@ -207,7 +207,7 @@ RSpec.describe OpenAI do
     end
   end
 
-  describe '#get_model' do
+  describe '#models.get' do
     let(:response_body) do
       {
         "id": 'text-davinci-002',
@@ -225,7 +225,7 @@ RSpec.describe OpenAI do
     end
 
     it 'can retrieve a model' do
-      model = client.get_model('text-davinci-002')
+      model = client.models.get('text-davinci-002')
 
       expect(http)
         .to have_received(:get)
@@ -245,7 +245,7 @@ RSpec.describe OpenAI do
     end
   end
 
-  describe '#create_edit' do
+  describe '#edits.create' do
     let(:response_body) do
       {
         "object": 'edit',
@@ -265,8 +265,8 @@ RSpec.describe OpenAI do
     end
 
     it 'can create an edit' do
-      edit = client.create_edit(model: 'text-davinci-002',
-                                instruction: 'Change "world" to "solar system" in the following text: "Hello, world!"')
+      edit = client.edits.create(model: 'text-davinci-002',
+                                 instruction: 'Change "world" to "solar system" in the following text: "Hello, world!"')
 
       expect(http)
         .to have_received(:post)
@@ -281,7 +281,7 @@ RSpec.describe OpenAI do
     end
   end
 
-  describe '#create_image_generation' do
+  describe '#images.create' do
     let(:response_body) do
       {
         created: Time.now.to_i,
@@ -293,7 +293,7 @@ RSpec.describe OpenAI do
     end
 
     it 'can create an image generation' do
-      image_generation = client.create_image_generation(prompt: 'a bird in the forest', size: 512)
+      image_generation = client.images.create(prompt: 'a bird in the forest', size: 512)
 
       expect(http)
         .to have_received(:post)
@@ -309,7 +309,7 @@ RSpec.describe OpenAI do
     end
   end
 
-  describe '#create_file' do
+  describe '#files.create' do
     let(:sample_file) { OpenAISpec::SPEC_ROOT.join('data/sample.jsonl') }
 
     let(:response_body) do
@@ -324,7 +324,7 @@ RSpec.describe OpenAI do
     end
 
     it 'can create a file' do
-      file = client.create_file(
+      file = client.files.create(
         file: sample_file,
         purpose: 'fine-tune'
       )
@@ -353,7 +353,7 @@ RSpec.describe OpenAI do
     end
   end
 
-  describe '#list_files' do
+  describe '#files.list' do
     let(:response_body) do
       {
         "data": [
@@ -379,7 +379,7 @@ RSpec.describe OpenAI do
     end
 
     it 'can get a list of files' do
-      files = client.list_files
+      files = client.files.list
 
       expect(http)
         .to have_received(:get)
@@ -396,7 +396,7 @@ RSpec.describe OpenAI do
     end
   end
 
-  describe '#delete_file' do
+  describe '#files.delete' do
     let(:response_body) do
       {
         "id": 'file-XjGxS3KTG0uNmNOK362iJua3',
@@ -406,7 +406,7 @@ RSpec.describe OpenAI do
     end
 
     it 'can delete a file' do
-      file = client.delete_file('file-XjGxS3KTG0uNmNOK362iJua3')
+      file = client.files.delete('file-XjGxS3KTG0uNmNOK362iJua3')
 
       expect(http)
         .to have_received(:delete)
@@ -418,7 +418,7 @@ RSpec.describe OpenAI do
     end
   end
 
-  describe '#get_file' do
+  describe '#files.get' do
     let(:response_body) do
       {
         "id": 'file-XjGxS3KTG0uNmNOK362iJua3',
@@ -431,7 +431,7 @@ RSpec.describe OpenAI do
     end
 
     it 'can get a file' do
-      file = client.get_file('file-XjGxS3KTG0uNmNOK362iJua3')
+      file = client.files.get('file-XjGxS3KTG0uNmNOK362iJua3')
 
       expect(http)
         .to have_received(:get)
@@ -446,7 +446,7 @@ RSpec.describe OpenAI do
     end
   end
 
-  describe '#get_file_content' do
+  describe '#files.get_content' do
     let(:response) do
       instance_double(
         HTTP::Response,
@@ -456,7 +456,7 @@ RSpec.describe OpenAI do
     end
 
     it 'can get a file contents' do
-      response = client.get_file_content('file-XjGxS3KTG0uNmNOK362iJua3')
+      response = client.files.get_content('file-XjGxS3KTG0uNmNOK362iJua3')
 
       expect(http)
         .to have_received(:get)
@@ -466,7 +466,7 @@ RSpec.describe OpenAI do
     end
   end
 
-  describe '#list_fine_tunes' do
+  describe '#fine_tunes.list' do
     let(:response_body) do
       {
         "object": 'list',
@@ -492,7 +492,7 @@ RSpec.describe OpenAI do
     end
 
     it 'can get a list of fine-tunes' do
-      fine_tunes = client.list_fine_tunes
+      fine_tunes = client.fine_tunes.list
 
       expect(http)
         .to have_received(:get)
@@ -521,7 +521,7 @@ RSpec.describe OpenAI do
     end
   end
 
-  describe '#create_fine_tune' do
+  describe '#fine_tunes.create' do
     let(:response_body) do
       {
         "id": 'ft-AF1WoRqd3aJAHsqc9NY7iL8F',
@@ -562,7 +562,7 @@ RSpec.describe OpenAI do
     end
 
     it 'can create a fine-tune' do
-      fine_tune = client.create_fine_tune(training_file: 'my-data-train.jsonl', model: 'curie')
+      fine_tune = client.fine_tunes.create(training_file: 'my-data-train.jsonl', model: 'curie')
 
       expect(http)
         .to have_received(:post)
@@ -594,7 +594,7 @@ RSpec.describe OpenAI do
     end
   end
 
-  describe '#get_fine_tune' do
+  describe '#fine_tunes.get' do
     let(:response_body) do
       {
         "id": 'ft-AF1WoRqd3aJAHsqc9NY7iL8F',
@@ -668,7 +668,7 @@ RSpec.describe OpenAI do
     end
 
     it 'can get a fine-tune' do
-      fine_tune = client.get_fine_tune('ft-AF1WoRqd3aJAHsqc9NY7iL8F')
+      fine_tune = client.fine_tunes.get('ft-AF1WoRqd3aJAHsqc9NY7iL8F')
 
       expect(http)
         .to have_received(:get)
@@ -705,7 +705,7 @@ RSpec.describe OpenAI do
     end
   end
 
-  describe '#cancel_fine_tune' do
+  describe '#fine_tunes.cancel' do
     let(:response_body) do
       {
         "id": 'ft-xhrpBbvVUzYGo8oUO1FY4nI7',
@@ -714,7 +714,7 @@ RSpec.describe OpenAI do
     end
 
     it 'can cancel a fine-tune' do
-      fine_tune = client.cancel_fine_tune('ft-xhrpBbvVUzYGo8oUO1FY4nI7')
+      fine_tune = client.fine_tunes.cancel('ft-xhrpBbvVUzYGo8oUO1FY4nI7')
 
       expect(http)
         .to have_received(:post)
