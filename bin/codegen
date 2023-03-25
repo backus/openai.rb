@@ -259,7 +259,12 @@ cache_file = cache_dir.join("#{codegen.verb}_#{codegen.route.gsub('/', '_')}.txt
 if cache_file.file?
   puts cache_file.read
 else
-  completion = api.create_chat_completion(model: 'gpt-3.5-turbo', messages: history, max_tokens: 1000)
+  completion = api.create_chat_completion(
+    model: 'gpt-3.5-turbo',
+    messages: history,
+    max_tokens: 1000,
+    temperature: 0
+  )
   output = completion.choices[0].message.content
   cache_file.write(output)
   puts output
