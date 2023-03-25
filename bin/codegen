@@ -12,7 +12,7 @@ Dotenv.load
 api = OpenAI.new(ENV.fetch('OPENAI_API_KEY'))
 
 class Codegen
-  include Anima.new(:openapi_file, :route, :verb)
+  include Anima.new(:openapi_file, :route, :verb, :mime)
   include Memoizable
 
   def self.parse_cli(argv)
@@ -20,6 +20,7 @@ class Codegen
       o.string '--openapi-file', 'Path to OpenAPI file', required: true
       o.string '--route', 'API route', required: true
       o.string '--verb', 'HTTP verb', required: true
+      o.string '--mime', 'Mime type', default: 'application/json'
     end
 
     openapi_file = Pathname.new(opts[:openapi_file])
@@ -27,8 +28,9 @@ class Codegen
 
     route = opts[:route]
     verb = opts[:verb]
+    mime = opts[:mime]
 
-    new(openapi_file: openapi_file, route: route, verb: verb)
+    new(openapi_file: openapi_file, route: route, verb: verb, mime: mime)
   end
 
   def validate!
@@ -76,7 +78,14 @@ class Codegen
   end
 
   def request_body
-    ref = deep_fetch(action, %w[requestBody content application/json schema $ref])
+    ref =
+      if mime == 'application/json'
+        deep_fetch(action, ['requestBody', 'content', 'application/json', 'schema', '$ref'])
+      elsif mime == 'multipart/form-data'
+        deep_fetch(action, ['requestBody', 'content', 'multipart/form-data', 'schema', '$ref'])
+      else
+        raise "Unknown mime type #{mime}"
+      end
     get_ref(ref)
   end
   memoize :request_body
@@ -101,20 +110,30 @@ class Codegen
   end
 
   def deep_fetch(obj, path)
-    path.reduce(obj, :fetch)
+    path.reduce(obj) do |acc, key|
+      acc.fetch(key) do
+        raise "No key #{key} in #{acc.inspect}"
+      end
+    end
   end
 end
 
 codegen = Codegen.parse_cli(ARGV)
 codegen.validate!
 
-create_completion_example = codegen.with(route: '/completions', verb: 'post')
+create_completion_example =
+  codegen.with(
+    route: '/completions',
+    verb: 'post',
+    mime: 'application/json'
+  )
 
 user_message_template = <<~MSG
   Please create an API call, a response wrapper, and a test for this request.
   OpenAPI context in JSON:
 
   ACTION: %<verb>s %<route>s
+  REQUEST MIME TYPE: %<mime>s
 
   REQUEST SUMMARY: %<summary>s
 
@@ -209,6 +228,7 @@ history = [
     role: 'user',
     content: format(
       user_message_template,
+      mime: create_completion_example.mime,
       verb: create_completion_example.verb,
       route: create_completion_example.route,
       summary: create_completion_example.request_body_summary,
@@ -223,6 +243,7 @@ history = [
     role: 'user',
     content: format(
       user_message_template,
+      mime: codegen.mime,
       verb: codegen.verb,
       route: codegen.route,
       summary: codegen.get? ? '(none)' : codegen.request_body_summary,
