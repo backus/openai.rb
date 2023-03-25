@@ -8,6 +8,7 @@ require 'addressable'
 require 'ice_nine'
 
 require 'openai/api'
+require 'openai/api/cache'
 require 'openai/api/client'
 require 'openai/api/resource'
 require 'openai/api/response'
@@ -16,8 +17,17 @@ require 'openai/version'
 class OpenAI
   include Concord.new(:api_client)
 
-  def self.create(api_key)
-    new(API::Client.new(api_key))
+  def self.create(api_key, cache: nil)
+    client = API::Client.new(api_key)
+
+    if cache.is_a?(Pathname) && cache.directory?
+      client = API::Cache.new(
+        client,
+        API::Cache::Strategy::FileSystem.new(cache)
+      )
+    end
+
+    new(client)
   end
 
   private_class_method :new

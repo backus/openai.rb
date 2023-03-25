@@ -5,6 +5,8 @@ class OpenAI
     class Client
       include Concord.new(:api_key, :http)
 
+      public :api_key
+
       HOST = Addressable::URI.parse('https://api.openai.com/v1')
 
       def initialize(api_key, http: HTTP)
