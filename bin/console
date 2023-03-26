@@ -9,14 +9,13 @@ require 'pry-byebug'
 
 Dotenv.load
 
-def start_repl
-  cache_dir = Pathname.new(__dir__).parent.join('tmp/console_cache')
-  cache_dir.mkpath unless cache_dir.exist?
-  openai = OpenAI.create(
-    ENV.fetch('OPENAI_API_KEY'),
-    cache: cache_dir
-  )
-  binding.pry
-end
+cache_dir = Pathname.new(__dir__).parent.join('tmp/console_cache')
+cache_dir.mkpath unless cache_dir.exist?
+openai = OpenAI.create(
+  ENV.fetch('OPENAI_API_KEY'),
+  cache: cache_dir
+)
+
+Pry.start_without_pry_byebug(binding, quiet: true)
 
 start_repl
