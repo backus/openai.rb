@@ -5,7 +5,8 @@ RSpec.describe OpenAI::Chat do
     described_class.new(
       api: api,
       settings: { model: 'gpt-3.5-turbo' },
-      messages: []
+      messages: [],
+      logger: instance_spy(Logger)
     )
   end
 end
