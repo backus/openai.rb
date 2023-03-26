@@ -35,10 +35,15 @@ class OpenAI
     def submit
       openai.logger.info("[Chat] [tokens=#{total_tokens}] Submitting messages:\n\n#{to_log_format}")
 
-      response = openai.api.chat_completions.create(
-        **settings,
-        messages: raw_messages
-      )
+      begin
+        response = openai.api.chat_completions.create(
+          **settings,
+          messages: raw_messages
+        )
+      rescue OpenAI::API::Error::ContextLengthExceeded => e
+        $logger.warn('[Chat] Context length exceeded. Shifting chat')
+        return shift_history.submit
+      end
 
       msg = response.choices.first.message
 
@@ -56,6 +61,13 @@ class OpenAI
     end
 
     private
+
+    def shift_history
+      drop_index = messages.index { |msg| msg.role != 'system' }
+      new_messages = messages.slice(0...drop_index) + messages.slice((drop_index + 1)..)
+
+      with(messages: new_messages)
+    end
 
     def total_tokens
       openai.tokens.for_model(settings.fetch(:model)).num_tokens(messages.map(&:content).join(' '))
