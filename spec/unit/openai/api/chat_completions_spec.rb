@@ -27,14 +27,16 @@ RSpec.describe OpenAI::API, '#chat_completions' do
     }
   end
 
-  it 'can create a chat completion' do
+  let(:completion) do
     messages = [
       { "text": 'Hello there!', "user": 'customer' },
       { "text": 'Can you help me with my order?', "user": 'customer' },
       { "text": 'Sure, what would you like to do?', "user": 'assistant' }
     ]
-    completion = resource.create(model: 'text-davinci-002', messages: messages)
+    resource.create(model: 'text-davinci-002', messages: messages)
+  end
 
+  it 'can create a chat completion' do
     expect(completion.id).to eql('chatcmpl-123')
     expect(completion.choices.first.index).to eql(0)
     expect(completion.choices.first.message.role).to eql('assistant')
@@ -43,6 +45,15 @@ RSpec.describe OpenAI::API, '#chat_completions' do
     expect(completion.usage.prompt_tokens).to eql(9)
     expect(completion.usage.completion_tokens).to eql(12)
     expect(completion.usage.total_tokens).to eql(21)
+  end
+
+  it 'exposes a #response_text helper method' do
+    expect(completion.response_text).to eql("\n\nHello there, how may I assist you today?")
+  end
+
+  it 'exposes a #response helper method' do
+    expect(completion.response.content).to eql("\n\nHello there, how may I assist you today?")
+    expect(completion.response.role).to eql('assistant')
   end
 
   it 'raises when a block is given for a non-streaming request' do
@@ -106,6 +117,9 @@ RSpec.describe OpenAI::API, '#chat_completions' do
       expect(chunks).to all(be_an_instance_of(OpenAI::API::Response::ChatCompletionChunk))
       texts = chunks.map { |chunk| chunk.choices.first.delta.content }
       expect(texts.join('')).to eql('Hello, world!')
+
+      expect(chunks[0].response.role).to eql('assistant')
+      expect(chunks[1].response_text).to eql('He')
     end
 
     it 'raises when a block is not given' do

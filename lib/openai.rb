@@ -11,7 +11,7 @@ require 'addressable'
 require 'ice_nine'
 require 'tiktoken_ruby'
 
-require 'openai/util/colorize'
+require 'openai/util'
 require 'openai/tokenizer'
 require 'openai/chat'
 require 'openai/api'

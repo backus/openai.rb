@@ -126,6 +126,18 @@ class OpenAI
         field :model
         field :choices, wrapper: Choice
         optional_field :usage, wrapper: Usage
+
+        def choice
+          Util.one(choices)
+        end
+
+        # This is a convenience method for getting the response text when there is exactly
+        # one choice.
+        #
+        # @see #response
+        def response_text
+          choice.text
+        end
       end
 
       class ChatCompletion < Response
@@ -151,6 +163,22 @@ class OpenAI
         field :created
         field :choices, wrapper: Choice
         field :usage, wrapper: Usage
+
+        # This is a convenience method for the common use case where you have exactly
+        # one choice and you want to get the message out.
+        #
+        # @see #response_text
+        def response
+          Util.one(choices).message
+        end
+
+        # This is a convenience method for getting the response text when there is exactly
+        # one choice.
+        #
+        # @see #response
+        def response_text
+          response.content
+        end
       end
 
       class ChatCompletionChunk < Response
@@ -172,6 +200,22 @@ class OpenAI
         field :created
         field :model
         field :choices, wrapper: Choice
+
+        # This is a convenience method for the common use case where you have exactly
+        # one choice and you want to get the message out.
+        #
+        # @see #response_text
+        def response
+          Util.one(choices).delta
+        end
+
+        # This is a convenience method for getting the response text when there is exactly
+        # one choice.
+        #
+        # @see #response
+        def response_text
+          response.content
+        end
       end
 
       class Embedding < Response

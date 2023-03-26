@@ -27,8 +27,10 @@ RSpec.describe OpenAI::API, '#completions' do
     }
   end
 
+  let(:completion) { resource.create(model: 'text-davinci-002', prompt: 'Hello, world!') }
+
   it 'can create a completion' do
-    completion = resource.create(model: 'text-davinci-002', prompt: 'Hello, world!')
+    completion
 
     expect(http)
       .to have_received(:post)
@@ -48,6 +50,10 @@ RSpec.describe OpenAI::API, '#completions' do
   it 'raises when a block is given for a non-streaming request' do
     expect { resource.create(model: 'text-davinci-002', prompt: 'Hello, world!') { print 'noop' } }
       .to raise_error('Non-streaming responses do not support blocks')
+  end
+
+  it 'exposes a #response_text helper method' do
+    expect(completion.response_text).to eql("\n\nThis is indeed a test")
   end
 
   context 'when streaming is enabled' do

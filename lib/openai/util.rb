@@ -2,6 +2,14 @@
 
 class OpenAI
   module Util
+    OneError = Class.new(ArgumentError)
+
+    def self.one(list)
+      raise OneError, "Expected exactly one element, got #{list.size}" unless list.size == 1
+
+      list.first
+    end
+
     module Colorize
       refine String do
         def red
