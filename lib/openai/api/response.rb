@@ -106,18 +106,18 @@ class OpenAI
         end
       end
 
+      class Usage < Response
+        field :prompt_tokens
+        field :completion_tokens
+        field :total_tokens
+      end
+
       class Completion < Response
         class Choice < Response
           field :text
           field :index
           field :logprobs
           field :finish_reason
-        end
-
-        class Usage < Response
-          field :prompt_tokens
-          field :completion_tokens
-          field :total_tokens
         end
 
         field :id
@@ -150,12 +150,6 @@ class OpenAI
           field :index
           field :message, wrapper: Message
           field :finish_reason
-        end
-
-        class Usage < Response
-          field :prompt_tokens
-          field :completion_tokens
-          field :total_tokens
         end
 
         field :id
@@ -283,12 +277,6 @@ class OpenAI
         class Choice < Response
           field :text
           field :index
-        end
-
-        class Usage < Response
-          field :prompt_tokens
-          field :completion_tokens
-          field :total_tokens
         end
 
         field :object
