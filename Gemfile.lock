@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    openai.rb (0.0.1)
+    openai.rb (0.0.2)
       abstract_type (~> 0.0.7)
       anima (~> 0.3)
       concord (~> 0.1)
