@@ -43,7 +43,7 @@ class OpenAI
     end
 
     def last_message
-      API::Response::ChatCompletion::Choice::Message.new(messages.last)
+      messages.last
     end
 
     def to_log_format
