@@ -69,7 +69,7 @@ class OpenAI
       end
 
       def unwrap_response(response)
-        raise API::Error, response unless response.status.success?
+        raise API::Error.parse(response) unless response.status.success?
 
         response.body.to_str
       end
