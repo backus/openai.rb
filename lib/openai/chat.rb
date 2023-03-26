@@ -2,7 +2,7 @@
 
 class OpenAI
   class Chat
-    include Anima.new(:messages, :settings, :api, :logger)
+    include Anima.new(:messages, :settings, :openai)
     using Util::Colorize
 
     def initialize(messages:, **kwargs)
@@ -33,9 +33,9 @@ class OpenAI
     alias assistant add_assistant_message
 
     def submit
-      logger.info("[Chat] Submitting messages:\n\n#{to_log_format}")
+      openai.logger.info("[Chat] [tokens=#{total_tokens}] Submitting messages:\n\n#{to_log_format}")
 
-      response = api.chat_completions.create(
+      response = openai.api.chat_completions.create(
         **settings,
         messages: raw_messages
       )
@@ -43,7 +43,7 @@ class OpenAI
       msg = response.choices.first.message
 
       add_message(msg.role, msg.content).tap do |new_chat|
-        logger.info("[Chat] Response:\n\n#{new_chat.last_message.to_log_format}")
+        openai.logger.info("[Chat] Response:\n\n#{new_chat.last_message.to_log_format}")
       end
     end
 
@@ -56,6 +56,10 @@ class OpenAI
     end
 
     private
+
+    def total_tokens
+      openai.tokens.for_model(settings.fetch(:model)).num_tokens(messages.map(&:content).join(' '))
+    end
 
     def raw_messages
       messages.map(&:to_h)

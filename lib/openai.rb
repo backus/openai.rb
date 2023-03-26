@@ -24,6 +24,8 @@ require 'openai/version'
 class OpenAI
   include Concord.new(:api_client, :logger)
 
+  public :logger
+
   ROOT = Pathname.new(__dir__).parent.expand_path.freeze
 
   def self.create(api_key, cache: nil, logger: Logger.new('/dev/null'))
@@ -52,10 +54,9 @@ class OpenAI
 
   def chat(model:, history: [], **kwargs)
     Chat.new(
-      api: api,
+      openai: self,
       settings: kwargs.merge(model: model),
-      messages: history,
-      logger: logger
+      messages: history
     )
   end
 end
