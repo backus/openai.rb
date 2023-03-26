@@ -16,11 +16,11 @@ Gem::Specification.new do |spec|
   spec.require_paths = %w[lib]
   spec.executables   = []
 
+  spec.add_dependency 'abstract_type', '~> 0.0.7'
   spec.add_dependency 'anima',         '~> 0.3'
   spec.add_dependency 'concord',       '~> 0.1'
   spec.add_dependency 'http',          '~> 5.1'
-  spec.add_dependency 'memoizable',    '~> 0.4.2'
-  spec.add_dependency 'abstract_type', '~> 0.0.7'
   spec.add_dependency 'ice_nine',      '~> 0.11.x'
+  spec.add_dependency 'memoizable',    '~> 0.4.2'
   spec.add_dependency 'tiktoken_ruby', '~> 0.0.3'
 end
