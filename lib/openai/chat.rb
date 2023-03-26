@@ -2,7 +2,8 @@
 
 class OpenAI
   class Chat
-    include Anima.new(:messages, :settings, :api)
+    include Anima.new(:messages, :settings, :api, :logger)
+    using Util::Colorize
 
     def initialize(messages:, **kwargs)
       messages = messages.map do |msg|
@@ -32,6 +33,8 @@ class OpenAI
     alias assistant add_assistant_message
 
     def submit
+      logger.info("[Chat] Submitting messages:\n\n#{to_log_format}")
+
       response = api.chat_completions.create(
         **settings,
         messages: raw_messages
@@ -39,7 +42,9 @@ class OpenAI
 
       msg = response.choices.first.message
 
-      add_message(msg.role, msg.content)
+      add_message(msg.role, msg.content).tap do |new_chat|
+        logger.info("[Chat] Response:\n\n#{new_chat.last_message.to_log_format}")
+      end
     end
 
     def last_message
@@ -68,7 +73,16 @@ class OpenAI
       include Anima.new(:role, :content)
 
       def to_log_format
-        "#{role.upcase}: #{content}"
+        prefix =
+          case role
+          when 'user' then "#{role}:".upcase.green
+          when 'system' then "#{role}:".upcase.yellow
+          when 'assistant' then "#{role}:".upcase.red
+          else
+            raise "Unknown role: #{role}"
+          end
+
+        "#{prefix} #{content}"
       end
     end
   end

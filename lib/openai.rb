@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'pathname'
+require 'logger'
+
 require 'concord'
 require 'anima'
 require 'abstract_type'
@@ -8,6 +11,7 @@ require 'addressable'
 require 'ice_nine'
 require 'tiktoken_ruby'
 
+require 'openai/util/colorize'
 require 'openai/tokenizer'
 require 'openai/chat'
 require 'openai/api'
@@ -18,11 +22,11 @@ require 'openai/api/response'
 require 'openai/version'
 
 class OpenAI
-  include Concord.new(:api_client)
+  include Concord.new(:api_client, :logger)
 
   ROOT = Pathname.new(__dir__).parent.expand_path.freeze
 
-  def self.create(api_key, cache: nil)
+  def self.create(api_key, cache: nil, logger: Logger.new('/dev/null'))
     client = API::Client.new(api_key)
 
     if cache.is_a?(Pathname) && cache.directory?
@@ -32,7 +36,7 @@ class OpenAI
       )
     end
 
-    new(client)
+    new(client, logger)
   end
 
   private_class_method :new
@@ -47,6 +51,11 @@ class OpenAI
   alias tokens tokenizer
 
   def chat(model:, history: [], **kwargs)
-    Chat.new(api: api, settings: kwargs.merge(model: model), messages: history)
+    Chat.new(
+      api: api,
+      settings: kwargs.merge(model: model),
+      messages: history,
+      logger: logger
+    )
   end
 end
