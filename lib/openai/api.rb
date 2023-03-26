@@ -7,6 +7,17 @@ class OpenAI
     class Error < StandardError
       include Concord::Public.new(:http_response)
 
+      def self.parse(http_response)
+        data = JSON.parse(http_response.body.to_s, symbolize_names: true)
+        if data.dig(:error, :code) == 'context_length_exceeded'
+          Error::ContextLengthExceeded.new(http_response)
+        else
+          new(http_response)
+        end
+      rescue JSON::ParserError
+        new(http_response)
+      end
+
       def message
         <<~ERROR
           Unexpected response status! Expected 2xx but got: #{http_response.status}
@@ -15,6 +26,9 @@ class OpenAI
 
           #{http_response.body}
         ERROR
+      end
+
+      class ContextLengthExceeded < self
       end
     end
 
