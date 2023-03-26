@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.describe OpenAI::API, '#moderations' do
   include_context 'an API Resource'
 

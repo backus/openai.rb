@@ -16,6 +16,8 @@ Gem::Specification.new do |spec|
   spec.require_paths = %w[lib]
   spec.executables   = []
 
+  spec.required_ruby_version = '>= 2.7'
+
   spec.add_dependency 'abstract_type', '~> 0.0.7'
   spec.add_dependency 'anima',         '~> 0.3'
   spec.add_dependency 'concord',       '~> 0.1'

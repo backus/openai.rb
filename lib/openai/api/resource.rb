@@ -33,11 +33,8 @@ class OpenAI
       )
         payload = kwargs.merge(stream: stream)
 
-        if stream && !block_given?
-          raise 'Streaming responses require a block'
-        elsif !stream && block_given?
-          raise 'Non-streaming responses do not support blocks'
-        end
+        raise 'Streaming responses require a block' if stream && !block_given?
+        raise 'Non-streaming responses do not support blocks' if !stream && block_given?
 
         if stream
           post(endpoint, **payload) do |chunk|

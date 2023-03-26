@@ -40,8 +40,8 @@ class OpenAI
           **settings,
           messages: raw_messages
         )
-      rescue OpenAI::API::Error::ContextLengthExceeded => e
-        $logger.warn('[Chat] Context length exceeded. Shifting chat')
+      rescue OpenAI::API::Error::ContextLengthExceeded
+        openai.logger.warn('[Chat] Context length exceeded. Shifting chat')
         return shift_history.submit
       end
 
