@@ -16,8 +16,12 @@ group :lint do
 end
 
 gem 'pry', '~> 0.13.1'
-gem 'pry-byebug', '~> 3.9'
+gem 'pry-byebug', '3.9.0'
 
 gem 'dotenv', '~> 2.8'
 
 gem 'slop', '~> 4.10'
+
+gem 'http', '~> 4.4' # For testing the older version of HTTP.rb
+
+gem 'rb_sys', '~> 0.9.70'
