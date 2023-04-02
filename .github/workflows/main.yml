@@ -1,0 +1,27 @@
+name: Ruby Gem CI
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        http_version: ['~> 4.4', '~> 5.1']
+        ruby_version: ['2.7.8']
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Update .ruby-version
+      run: echo "${{ matrix.ruby_version }}" > .ruby-version
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: ${{ matrix.ruby_version }}
+        bundler-cache: true
+    - name: Install dependencies
+      run: |
+        echo "gem 'http', '${{ matrix.http_version }}'" >> Gemfile.local
+        bundle install
+    - name: Run tests
+      run: bundle exec rspec

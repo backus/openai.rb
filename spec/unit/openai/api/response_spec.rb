@@ -41,7 +41,7 @@ RSpec.describe OpenAI::API::Response do
     {
       meta: {
         birth: {
-          created: Time.new(2023).to_i
+          created: Time.utc(2023).to_i
         }
       },
       text: 'This is a post',
@@ -126,7 +126,7 @@ RSpec.describe OpenAI::API::Response do
   describe '.field' do
     it 'exposes the field' do
       expect(sample_response.text).to eql('This is a post')
-      expect(sample_response.created_at).to eql(1_672_549_200)
+      expect(sample_response.created_at).to eql(1_672_531_200)
     end
 
     it 'can expose fields under a different name than the key path' do
