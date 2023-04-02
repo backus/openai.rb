@@ -21,3 +21,5 @@ gem 'pry-byebug', '~> 3.9'
 gem 'dotenv', '~> 2.8'
 
 gem 'slop', '~> 4.10'
+
+gem 'http', '~> 4.4' # For testing the older version of HTTP.rb
