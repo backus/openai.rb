@@ -2,10 +2,10 @@
 
 class OpenAI
   class Chat
-    include Anima.new(:messages, :settings, :openai)
+    include Anima.new(:messages, :api_settings, :openai, :config)
     using Util::Colorize
 
-    def initialize(messages:, **kwargs)
+    def initialize(messages:, settings: {}, config: Config.create, **kwargs)
       messages = messages.map do |msg|
         if msg.is_a?(Hash)
           Message.new(msg)
@@ -14,7 +14,16 @@ class OpenAI
         end
       end
 
-      super(messages: messages, **kwargs)
+      super(
+        messages: messages,
+        api_settings: settings,
+        config: config,
+        **kwargs
+      )
+    end
+
+    def configure(**configuration)
+      with(config: config.with(configuration))
     end
 
     def add_user_message(message)
@@ -37,10 +46,11 @@ class OpenAI
 
       begin
         response = openai.api.chat_completions.create(
-          **settings,
+          **api_settings,
           messages: raw_messages
         )
       rescue OpenAI::API::Error::ContextLengthExceeded
+        raise 'Context length exceeded.'
         openai.logger.warn('[Chat] Context length exceeded. Shifting chat')
         return shift_history.submit
       end
@@ -48,7 +58,7 @@ class OpenAI
       msg = response.choices.first.message
 
       add_message(msg.role, msg.content).tap do |new_chat|
-        openai.logger.info("[Chat] Response:\n\n#{new_chat.last_message.to_log_format}")
+        openai.logger.info("[Chat] Response:\n\n#{new_chat.last_message.to_log_format(config)}")
       end
     end
 
@@ -57,7 +67,9 @@ class OpenAI
     end
 
     def to_log_format
-      messages.map(&:to_log_format).join("\n\n")
+      messages.map do |msg|
+        msg.to_log_format(config)
+      end.join("\n\n")
     end
 
     private
@@ -70,7 +82,7 @@ class OpenAI
     end
 
     def total_tokens
-      openai.tokens.for_model(settings.fetch(:model)).num_tokens(messages.map(&:content).join(' '))
+      openai.tokens.for_model(api_settings.fetch(:model)).num_tokens(messages.map(&:content).join(' '))
     end
 
     def raw_messages
@@ -85,15 +97,23 @@ class OpenAI
       with(messages: messages + [message])
     end
 
+    class Config
+      include Anima.new(:assistant_name)
+
+      def self.create
+        new(assistant_name: 'assistant')
+      end
+    end
+
     class Message
       include Anima.new(:role, :content)
 
-      def to_log_format
+      def to_log_format(config)
         prefix =
           case role
           when 'user' then "#{role}:".upcase.green
           when 'system' then "#{role}:".upcase.yellow
-          when 'assistant' then "#{role}:".upcase.red
+          when 'assistant' then "#{config.assistant_name}:".upcase.red
           else
             raise "Unknown role: #{role}"
           end
