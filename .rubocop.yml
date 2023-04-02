@@ -12,3 +12,7 @@ Style/Documentation:
 
 Layout/LineLength:
   Enabled: false
+
+Style/FrozenStringLiteralComment:
+  SafeAutoCorrect: true
+  Enabled: true
