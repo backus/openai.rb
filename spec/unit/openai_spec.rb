@@ -37,6 +37,25 @@ RSpec.describe OpenAI do
     )
   end
 
+  context 'when the organization ID is given to the client' do
+    let(:api_client) do
+      OpenAI::API::Client.new(
+        'sk-123',
+        organization_id: 'org-123',
+        http: http
+      )
+    end
+
+    it 'authenticates the request and includes the organization id' do
+      resource.create(model: 'text-davinci-002', prompt: 'Hello, world!')
+
+      expect(http).to have_received(:headers).with(
+        'OpenAI-Organization' => 'org-123',
+        'Authorization' => 'Bearer sk-123'
+      )
+    end
+  end
+
   context 'when the request is not 2xx' do
     let(:response_body) do
       {

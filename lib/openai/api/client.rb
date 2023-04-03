@@ -3,18 +3,18 @@
 class OpenAI
   class API
     class Client
-      include Concord.new(:api_key, :http)
+      include Concord.new(:api_key, :organization_id, :http)
 
       public :api_key
 
       HOST = Addressable::URI.parse('https://api.openai.com/v1')
 
-      def initialize(api_key, http: HTTP)
-        super(api_key, http)
+      def initialize(api_key, organization_id: nil, http: HTTP)
+        super(api_key, organization_id, http)
       end
 
       def inspect
-        "#<#{self.class}>"
+        "#<#{self.class} organization_id=#{organization_id.inspect}>"
       end
 
       def get(route)
@@ -79,7 +79,9 @@ class OpenAI
       end
 
       def http_client
-        http.headers('Authorization' => "Bearer #{api_key}")
+        headers = { 'Authorization' => "Bearer #{api_key}" }
+        headers['OpenAI-Organization'] = organization_id if organization_id
+        http.headers(headers)
       end
     end
   end

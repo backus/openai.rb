@@ -17,5 +17,3 @@ openai = OpenAI.create(
 )
 
 Pry.start_without_pry_byebug(binding, quiet: true)
-
-start_repl
