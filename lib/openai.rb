@@ -28,8 +28,8 @@ class OpenAI
 
   ROOT = Pathname.new(__dir__).parent.expand_path.freeze
 
-  def self.create(api_key, cache: nil, logger: Logger.new('/dev/null'))
-    client = API::Client.new(api_key)
+  def self.create(api_key, cache: nil, organization: nil, logger: Logger.new('/dev/null'))
+    client = API::Client.new(api_key, organization_id: organization)
 
     if cache.is_a?(Pathname) && cache.directory?
       client = API::Cache.new(
