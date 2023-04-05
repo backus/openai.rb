@@ -62,6 +62,10 @@ class OpenAI
         unwrap_response(http_client.post(url_for(route), form: body))
       end
 
+      def without_cache
+        self
+      end
+
       private
 
       def url_for(route)

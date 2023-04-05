@@ -51,6 +51,13 @@ openai.api.completions.create(model: 'text-davinci-002', prompt: 'Say hi')
 
 NOTE: Delete requests are not cached
 
+To temporarily use the client without caching:
+
+```ruby
+openai = OpenAI.create(ENV.fetch('OPENAI_API_KEY'), cache: cache_dir)
+openai.without_cache.api.completions.create(...)
+```
+
 ### Tokens
 
 ```ruby
