@@ -41,7 +41,16 @@ class OpenAI
     new(client, logger)
   end
 
+  # @api private
+  def self.build(api_client, logger)
+    new(api_client, logger)
+  end
+
   private_class_method :new
+
+  def without_cache
+    self.class.build(api_client.without_cache, logger)
+  end
 
   def api
     API.new(api_client)

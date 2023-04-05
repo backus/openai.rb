@@ -29,6 +29,10 @@ class OpenAI
         end
       end
 
+      def without_cache
+        client
+      end
+
       private
 
       def read_cache_or_apply(...)
